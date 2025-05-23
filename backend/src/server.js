@@ -1,4 +1,5 @@
 // src/server.js
+import './polyfill.js';
 import app from './app.js';
 
 const PORT = process.env.PORT || 5000;
