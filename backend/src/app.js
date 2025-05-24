@@ -17,8 +17,8 @@ const app = express();
 
 // Configuración de CORS
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3001',
-  process.env.ADMIN_URL || 'http://localhost:3000',
+  process.env.FRONTEND_URL || 'https://alquilalo.onrender.com',
+  process.env.ADMIN_URL || 'https://alquilalo-admin.onrender.com',
   'https://api.mercadopago.com',
   'https://www.mercadopago.com',
   'https://www.mercadopago.com.ar'
