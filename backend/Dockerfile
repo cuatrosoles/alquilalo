@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR /usr/src/app
+WORKDIR /usr/src/server
 
 # Copia el package.json y package-lock.json para instalar dependencias
 COPY package*.json ./
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expone el puerto en el que corre tu app
-EXPOSE 3000 
+EXPOSE 10000 
 # (Render ignorará esto y usará su variable PORT, pero es una buena práctica)
 
 # El comando para iniciar la aplicación
