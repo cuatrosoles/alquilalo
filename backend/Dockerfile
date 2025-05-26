@@ -1,21 +1,26 @@
-# Usa una imagen oficial de Node.js (elige la versión de tu proyecto)
+# Usa una imagen oficial de Node.js
 FROM node:18-alpine
 
-# Establece el directorio de trabajo dentro del contenedor
+# Crea un usuario no root
+RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
+
+# Establece el directorio de trabajo
 WORKDIR /usr/src/server
 
-# Copia el package.json y package-lock.json para instalar dependencias
+# Copia los archivos de dependencias
 COPY package*.json ./
 
-# Instala las dependencias del proyecto
+# Instala las dependencias
 RUN npm install
 
-# Copia el resto de los archivos de tu aplicación
-COPY . .
+# Copia el resto de los archivos
+COPY --chown=nodejs:nodejs . .
 
-# Expone el puerto en el que corre tu app
-EXPOSE 10000 
-# (Render ignorará esto y usará su variable PORT, pero es una buena práctica)
+# Cambia al usuario no root
+USER nodejs
 
-# El comando para iniciar la aplicación
-CMD [ "npm", "start" ]
+# Expone el puerto
+EXPOSE 10000
+
+# Comando para iniciar la aplicación
+CMD ["node", "src/server.js"]

@@ -39,7 +39,7 @@ yarn-error.log*
 /frontend/admin/node_modules
 /frontend/admin/.next
 /frontend/admin/out
-/frontend/admin/build
+###/frontend/admin/build
 /frontend/user/node_modules
 /frontend/user/.next
 /frontend/user/out
