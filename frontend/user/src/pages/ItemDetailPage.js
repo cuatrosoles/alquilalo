@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // frontend/user/src/pages/ItemDetailPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
@@ -295,12 +296,11 @@ function ItemDetailPage() {
       setShowRentalModal(true);
     } catch (error) {
       console.error('Error al preparar la reserva:', error);
-      setError('Ha ocurrido un error al procesar tu solicitud');
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
-
   if (!item) {
     return <div>Cargando...</div>;
   }
