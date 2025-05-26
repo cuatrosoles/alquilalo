@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { auth } from '../config/firebase';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://alquilalo-backend.onrender.com/api';
 
 // Configuración de axios para incluir el token de autenticación
 const api = axios.create({

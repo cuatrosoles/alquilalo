@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://alquilalo-backend.onrender.com/api';
 
 const bookingService = {
   // Crear una nueva reserva
