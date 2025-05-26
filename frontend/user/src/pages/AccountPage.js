@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { auth, db } from '../config/firebase';
-import { collection, query, where, getDocs, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
 function AccountPage() {
   const navigate = useNavigate();
@@ -20,12 +20,44 @@ function AccountPage() {
     total: 0
   });
 
+  const updateBalance = useCallback((ownerRentals, renterRentals) => {
+    let available = 0;
+    let pending = 0;
+
+    // Calcular ganancias como propietario
+    ownerRentals.forEach(rental => {
+      if (rental.status === 'completed') {
+        available += rental.totalAmount - (rental.totalAmount * 0.10); // 10% fee
+      } else if (rental.status === 'pending') {
+        pending += rental.totalAmount - (rental.totalAmount * 0.10);
+      }
+    });
+
+    // Calcular gastos como inquilino
+    renterRentals.forEach(rental => {
+      if (rental.status === 'completed') {
+        available -= rental.totalAmount;
+      } else if (rental.status === 'pending') {
+        pending -= rental.totalAmount;
+      }
+    });
+
+    setBalance({
+      available,
+      pending,
+      total: available + pending
+    });
+  }, []);
+
   useEffect(() => {
-    let ownerUnsubscribe = null;
-    let renterUnsubscribe = null;
+    let ownerUnsubscribe;
+    let renterUnsubscribe;
 
     const fetchUserData = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const user = auth.currentUser;
         if (!user) {
           navigate('/login');
@@ -46,8 +78,10 @@ function AccountPage() {
               id: doc.id,
               ...doc.data()
             }));
-            setRentals(prev => ({ ...prev, asOwner: ownerRentals }));
-            updateBalance(ownerRentals, rentals.asRenter);
+            setRentals(prev => {
+              updateBalance(ownerRentals, prev.asRenter);
+              return { ...prev, asOwner: ownerRentals };
+            });
           },
           (error) => {
             console.error('Error en listener de propietario:', error);
@@ -69,8 +103,10 @@ function AccountPage() {
               id: doc.id,
               ...doc.data()
             }));
-            setRentals(prev => ({ ...prev, asRenter: renterRentals }));
-            updateBalance(rentals.asOwner, renterRentals);
+            setRentals(prev => {
+              updateBalance(prev.asOwner, renterRentals);
+              return { ...prev, asRenter: renterRentals };
+            });
           },
           (error) => {
             console.error('Error en listener de inquilino:', error);
@@ -86,35 +122,6 @@ function AccountPage() {
       }
     };
 
-    const updateBalance = (ownerRentals, renterRentals) => {
-      let available = 0;
-      let pending = 0;
-
-      // Calcular ganancias como propietario
-      ownerRentals.forEach(rental => {
-        if (rental.status === 'completed') {
-          available += rental.totalAmount - (rental.totalAmount * 0.10); // 10% fee
-        } else if (rental.status === 'pending') {
-          pending += rental.totalAmount - (rental.totalAmount * 0.10);
-        }
-      });
-
-      // Calcular gastos como inquilino
-      renterRentals.forEach(rental => {
-        if (rental.status === 'completed') {
-          available -= rental.totalAmount;
-        } else if (rental.status === 'pending') {
-          pending -= rental.totalAmount;
-        }
-      });
-
-      setBalance({
-        available,
-        pending,
-        total: available + pending
-      });
-    };
-
     fetchUserData();
 
     // Limpiar listeners al desmontar
@@ -122,7 +129,7 @@ function AccountPage() {
       if (ownerUnsubscribe) ownerUnsubscribe();
       if (renterUnsubscribe) renterUnsubscribe();
     };
-  }, []);
+  }, [navigate, updateBalance]);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return '';

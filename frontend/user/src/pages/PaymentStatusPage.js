@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/pages/PaymentStatusPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';

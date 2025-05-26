@@ -35,11 +35,18 @@ function ProfilePage() {
 
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUserData({
-            ...userData,
-            ...userDoc.data(),
-            displayName: user.displayName || ''
-          });
+          const userDocData = userDoc.data();
+          // Only update if there are actual changes to prevent unnecessary re-renders
+          setUserData(prev => ({
+            ...prev,
+            ...userDocData,
+            displayName: user.displayName || prev.displayName,
+            // Preserve emailPreferences if not in the document
+            emailPreferences: {
+              ...prev.emailPreferences,
+              ...(userDocData.emailPreferences || {})
+            }
+          }));
         }
       } catch (error) {
         setError('Error al cargar los datos del usuario');
@@ -50,10 +57,10 @@ function ProfilePage() {
     };
 
     fetchUserData();
-  }, []);
+  }, [navigate]); // Removed userData from dependencies to prevent infinite loop
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (name.startsWith('emailPreferences.')) {
       const preference = name.split('.')[1];
       setUserData(prev => ({

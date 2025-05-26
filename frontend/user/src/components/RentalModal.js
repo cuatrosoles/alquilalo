@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { collection, addDoc } from 'firebase/firestore';
-import { db, auth } from '../config/firebase';
+import { auth } from '../config/firebase';
 import api from '../services/api';
 import PaymentService from '../services/payment.service';
-import { ArrowPathIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 const DEPOSIT_PERCENTAGE = 30; // Porcentaje del depósito en garantía
 const PLATFORM_FEE_PERCENTAGE = 12; // Porcentaje de fee de la plataforma
@@ -24,19 +22,16 @@ const validateContactInfo = (text) => {
 };
 
 const RentalModal = ({ isOpen, onClose, item, selectedDate, selectedTimeSlot, totalPrice, onTotalPriceChange }) => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [notes, setNotes] = useState('');
   const [showDepositInfo, setShowDepositInfo] = useState(true);
   const [contactWarning, setContactWarning] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null);
 
   // Calcular el depósito en garantía y el fee de la plataforma
   const depositAmount = (totalPrice * DEPOSIT_PERCENTAGE) / 100;
   const platformFee = (depositAmount * PLATFORM_FEE_PERCENTAGE) / 100;
-  const ownerReceivesAmount = depositAmount - platformFee;
 
   const handleNotesChange = (e) => {
     const newNotes = e.target.value;

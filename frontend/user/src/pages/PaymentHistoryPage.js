@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/pages/PaymentHistoryPage.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,8 +12,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ArrowPathIcon,
-  FunnelIcon
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 const PaymentHistoryPage = () => {

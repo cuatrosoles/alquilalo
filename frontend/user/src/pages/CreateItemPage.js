@@ -7,17 +7,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Autocomplete } from '@react-google-maps/api';
 import GoogleMapsWrapper from '../components/GoogleMapsWrapper';
-import Mapa from '../components/Mapa';
 
 const CreateItemPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [images, setImages] = useState([]);
   const [categories, setCategories] = useState([]);
   const [autocomplete, setAutocomplete] = useState(null);
   const [mapsAvailable, setMapsAvailable] = useState(false);
-  const [mapsLoaded, setMapsLoaded] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -582,7 +579,6 @@ const CreateItemPage = () => {
 
   const handleMapsAvailable = (available) => {
     setMapsAvailable(available);
-    setMapsLoaded(true);
   };
 
   const geocodeAddress = async (address) => {

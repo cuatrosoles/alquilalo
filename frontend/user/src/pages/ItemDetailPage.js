@@ -1,5 +1,5 @@
 // frontend/user/src/pages/ItemDetailPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import Header from '../components/Header';
@@ -23,6 +23,42 @@ function ItemDetailPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showResetButton, setShowResetButton] = useState(false);
+
+  // Función para obtener las franjas horarias disponibles para una fecha
+  const getAvailableTimeSlots = useCallback((date) => {
+    if (!item || !item.availability) return [];
+    const dayOfWeek = getDayOfWeek(date);
+    if (!item.availability.days[dayOfWeek]?.enabled) {
+      return [];
+    }
+
+    // Obtener todas las franjas horarias del día
+    const allSlots = item.availability.days[dayOfWeek].slots;
+
+    // Asegurarnos de que blockedDates esté inicializado
+    const blockedDates = item.availability.blockedDates || [];
+
+    // Filtrar las franjas horarias que están bloqueadas
+    const availableSlots = allSlots.filter(slot => {
+      const isBlocked = blockedDates.some(blocked => {
+        const blockedDate = new Date(blocked.startDate);
+        blockedDate.setHours(0, 0, 0, 0);
+        const checkDate = new Date(date);
+        checkDate.setHours(0, 0, 0, 0);
+
+        // Verificar si es el mismo día y si las franjas horarias se superponen
+        return (
+          blockedDate.getTime() === checkDate.getTime() &&
+          blocked.startTime <= slot.end &&
+          blocked.endTime >= slot.start
+        );
+      });
+
+      return !isBlocked;
+    });
+
+    return availableSlots;
+  }, [item]);
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -60,14 +96,8 @@ function ItemDetailPage() {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, getAvailableTimeSlots]);
 
-  const formatLocation = (location) => {
-    if (!location || !location.address) return 'Sin ubicación';
-    const { city, zip, province, country } = location.address;
-    const parts = [city, zip, province, country].filter(Boolean);
-    return parts.join(', ');
-  };
 
   // Nuevo getDayOfWeek robusto
   const getDayOfWeek = (date) => {
@@ -110,42 +140,6 @@ function ItemDetailPage() {
       available: isEnabled && isFuture && !isBlocked,
       isBlocked: isBlocked
     };
-  };
-
-  // Función para obtener las franjas horarias disponibles para una fecha
-  const getAvailableTimeSlots = (date) => {
-    if (!item || !item.availability) return [];
-    const dayOfWeek = getDayOfWeek(date);
-    if (!item.availability.days[dayOfWeek]?.enabled) {
-      return [];
-    }
-
-    // Obtener todas las franjas horarias del día
-    const allSlots = item.availability.days[dayOfWeek].slots;
-
-    // Asegurarnos de que blockedDates esté inicializado
-    const blockedDates = item.availability.blockedDates || [];
-
-    // Filtrar las franjas horarias que están bloqueadas
-    const availableSlots = allSlots.filter(slot => {
-      const isBlocked = blockedDates.some(blocked => {
-        const blockedDate = new Date(blocked.startDate);
-        blockedDate.setHours(0, 0, 0, 0);
-        const checkDate = new Date(date);
-        checkDate.setHours(0, 0, 0, 0);
-
-        // Verificar si es el mismo día y si las franjas horarias se superponen
-        return (
-          blockedDate.getTime() === checkDate.getTime() &&
-          blocked.startTime <= slot.end &&
-          blocked.endTime >= slot.start
-        );
-      });
-
-      return !isBlocked;
-    });
-
-    return availableSlots;
   };
 
   // Función para manejar la selección de fecha
