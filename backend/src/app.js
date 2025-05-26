@@ -83,22 +83,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-// En tu archivo app.js, justo antes de exportar la app
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configuración para servir archivos estáticos
-if (process.env.NODE_ENV === 'production') {
-  // Configura la ruta al directorio build de React
-  app.use(express.static(path.join(__dirname, '../../frontend/user/build')));
-  
-  // Maneja cualquier otra ruta que no sea de la API
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/user/build', 'index.html'));
-  });
-}
-
 export default app;
