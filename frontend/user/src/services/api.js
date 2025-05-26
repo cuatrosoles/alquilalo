@@ -28,7 +28,7 @@ export const searchItems = async (filters) => {
 export const getCategories = async () => {
   try {
     const response = await api.get('/categories');
-    ///console.log('Respuesta de categorías:', response.data);
+    console.log('Respuesta de categorías:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al obtener categorías:', error.response?.data || error.message);
@@ -39,7 +39,7 @@ export const getCategories = async () => {
 export const getFeaturedItems = async () => {
   try {
     const response = await api.get('/items', { params: { featured: true } });
-    ///console.log('Respuesta de items destacados:', response.data);
+    console.log('Respuesta de items destacados:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error al obtener items destacados:', error.response?.data || error.message);
