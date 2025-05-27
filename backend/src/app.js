@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.routes.js';
 import itemRoutes from './routes/item.routes.js';
 import categoryRoutes from './routes/category.routes.js';
@@ -12,6 +14,9 @@ import paymentRoutes from './routes/payment.routes.js';
 import insuranceClaimRoutes from './routes/insuranceClaim.routes.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -62,7 +67,18 @@ app.use('/api/reviews', reviewRoutes);
 // Usa las rutas de pagos
 app.use('/api/payments', paymentRoutes);
 // Usa las rutas de reclamaciones de seguro
-app.use('/api/claims', insuranceClaimRoutes);
+app.use('/api/insurance-claims', insuranceClaimRoutes);
+
+// Configuración para servir archivos estáticos en producción
+if (process.env.NODE_ENV === 'production') {
+  // Servir archivos estáticos de React
+  app.use(express.static(path.join(__dirname, '../../../frontend/user/build')));
+  
+  // Manejar cualquier otra ruta que no sea de la API
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../../frontend/user/build', 'index.html'));
+  });
+}
 
 // Ruta de prueba
 app.get('/api', (req, res) => {
