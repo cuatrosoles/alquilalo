@@ -15,51 +15,59 @@ let tokenCache = {
   expiresAt: 0
 };
 
+// Cache para el token
+let tokenRefreshPromise = null;
+
 // Interceptor para agregar el token a las peticiones
 api.interceptors.request.use(async (config) => {
   // No intentar autenticar si la URL es de autenticación
-  if (config.url.includes('/auth/')) {
+  if (config.url.includes('/auth/') || !auth.currentUser) {
     return config;
   }
 
   try {
-    if (auth.currentUser) {
-      const now = Date.now();
-      // Solo refrescar el token si ha caducado o está a punto de caducar (en los próximos 5 minutos)
-      if (!tokenCache.value || now >= tokenCache.expiresAt - 300000) {
-        try {
-          const token = await auth.currentUser.getIdToken(true);
-          if (token) {
-            tokenCache = {
-              value: token,
-              // El token de Firebase expira después de 1 hora (3600 segundos)
-              expiresAt: now + 3600000
-            };
-          }
-        } catch (tokenError) {
-          console.error('Error al refrescar el token:', tokenError);
-          // No romper el flujo si falla el refresco del token
-          if (tokenCache.value) {
-            // Usar el token en caché si está disponible
-            config.headers.Authorization = `Bearer ${tokenCache.value}`;
-            return config;
-          }
-          throw tokenError;
+    const now = Date.now();
+    const tokenExpiration = tokenCache?.expiresAt || 0;
+    const tokenNeedsRefresh = !tokenCache?.value || now >= tokenExpiration - 300000; // 5 minutos de margen
+
+    if (tokenNeedsRefresh) {
+      // Si ya hay un refresh en curso, esperar a que termine
+      if (!tokenRefreshPromise) {
+        tokenRefreshPromise = auth.currentUser.getIdToken(true)
+          .then(token => {
+            if (token) {
+              tokenCache = {
+                value: token,
+                expiresAt: Date.now() + 3600000 // 1 hora de validez
+              };
+            }
+            return token;
+          })
+          .finally(() => {
+            tokenRefreshPromise = null;
+          });
+      }
+
+      try {
+        const token = await tokenRefreshPromise;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (error) {
+        console.error('Error al refrescar el token:', error);
+        // Si hay un token en caché, usarlo aunque esté por expirar
+        if (tokenCache?.value) {
+          config.headers.Authorization = `Bearer ${tokenCache.value}`;
         }
       }
-      
-      if (tokenCache.value) {
-        config.headers.Authorization = `Bearer ${tokenCache.value}`;
-      } else {
-        console.warn('No se pudo obtener el token de autenticación');
-      }
-    } else {
-      console.warn('No hay usuario autenticado');
+    } else if (tokenCache?.value) {
+      // Usar el token en caché si aún es válido
+      config.headers.Authorization = `Bearer ${tokenCache.value}`;
     }
+
     return config;
   } catch (error) {
     console.error('Error en el interceptor de autenticación:', error);
-    // No rechazar la promesa para permitir que las peticiones sin autenticación continúen
     return config;
   }
 });
