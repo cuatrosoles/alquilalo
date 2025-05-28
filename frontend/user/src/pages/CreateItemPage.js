@@ -619,7 +619,7 @@ const CreateItemPage = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 bg-blue-50">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto bg-red-50">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Publicar un artículo</h1>
           
           {error && (
@@ -812,6 +812,9 @@ const CreateItemPage = () => {
               </button>
             </div>
           </form>
+        </div>
+        <div className="max-w-2xl mx-auto bg-green-50">
+          <p>Formulario terminado</p>
         </div>
       </main>
       <Footer />
