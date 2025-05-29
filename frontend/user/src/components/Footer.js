@@ -6,7 +6,7 @@ function Footer() {
       <div className="max-w-7xl w-full mx-auto px-8 flex flex-col md:flex-row justify-between gap-12">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <img src="/images/logoV1-400x116.png" alt="Alquilalo" className="h-12 w-auto" />
+            <img src="/images/LogoAlquilaloV1-Rosa-960x270.png" alt="Alquilalo" className="h-12 w-auto" />
           </div>
           <p className="text-gray-500 text-sm max-w-xs">
             Alquila lo que necesitas, cuando lo necesitas. Ahorra dinero, reduce el impacto ambiental y únete a la comunidad de consumo colaborativo.
