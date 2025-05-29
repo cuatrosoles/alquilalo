@@ -26,7 +26,10 @@ const allowedOrigins = [
   'https://alquilalo-admin.onrender.com',
   'https://api.mercadopago.com',
   'https://www.mercadopago.com',
-  'https://www.mercadopago.com.ar'
+  'https://www.mercadopago.com.ar',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5000',
 ];
 
 const corsOptions = {

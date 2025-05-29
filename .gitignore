@@ -37,13 +37,16 @@ yarn-error.log*
 
 # Backend
 /backend/node_modules/
+/backend/package-lock.json
 
 # Frontend específico
 /frontend/admin/node_modules/
 /frontend/admin/.next
 /frontend/admin/out
+/frontend/admin/package-lock.json
 ###/frontend/admin/build
 /frontend/user/node_modules/
 /frontend/user/.next
 /frontend/user/out
+/frontend/user/package-lock.json
 ###/frontend/user/build
