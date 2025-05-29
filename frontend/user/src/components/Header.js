@@ -10,7 +10,7 @@ function Header() {
       <div className="max-w-7xl w-full mx-auto flex items-center justify-between py-0 px-8">
         <div className="flex items-center gap-2">
           <Link to="/">
-            <img src="/images/LogoAlquilaloV1-Rosa-960x270.png" alt="Alquilalo" className="h-15 w-auto" />
+            <img src="/images/LogoAlquilaloV1-Rosa-480x135.png" alt="Alquilalo" className="h-15 w-auto" />
           </Link>
         </div>
         <nav className="flex gap-8 text-gray-700 font-medium text-lg">
