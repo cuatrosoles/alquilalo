@@ -35,6 +35,9 @@ yarn-error.log*
 .next/
 .nuxt/
 
+# Backend
+/backend/node_modules/
+
 # Frontend específico
 /frontend/admin/node_modules/
 /frontend/admin/.next
