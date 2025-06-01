@@ -46,11 +46,15 @@ const CreateItemPage = () => {
     }
   });
 
+  const [itemCondition, setItemCondition] = useState('excelent');
+  const [itemDelivery, setItemDelivery] = useState('envioPorCorreo');
+
   const [selectedImages, setSelectedImages] = useState([]);
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
   const [selectedDay, setSelectedDay] = useState('monday');
   const [newSlot, setNewSlot] = useState({ start: '', end: '' });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -294,7 +298,7 @@ const CreateItemPage = () => {
     return (
       <div className="space-y-6">
         <h3 className="text-lg font-medium text-gray-900">Disponibilidad</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2" style={{ fontSize: '0.6rem' }}>
           {/* Selector de días */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-gray-700">Días disponibles</h4>
@@ -320,7 +324,7 @@ const CreateItemPage = () => {
           {formData.priceType === 'hourly' && (
             <div className="space-y-4">
               <h4 className="text-sm font-medium text-gray-700">Franjas horarias</h4>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <select
                     value={selectedDay}
@@ -354,7 +358,7 @@ const CreateItemPage = () => {
                         onClick={() => handleAddSlot(selectedDay)}
                         className="px-4 py-2 bg-[#FFC107] text-white rounded-md hover:bg-[#ffb300] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFC107]"
                       >
-                        Agregar
+                        +
                       </button>
                     </div>
 
@@ -399,7 +403,7 @@ const CreateItemPage = () => {
     }
 
     if (!formData.title || !formData.description || !formData.categoryId || 
-        !formData.priceType || !formData.pricePerDay || !formData.location.address.street) {
+        !formData.priceType || !formData.pricePerDay || !formData.location.address.street || !formData.condition || !formData.delivery) {
       setError('Por favor, completa todos los campos requeridos');
       setLoading(false);
       return;
@@ -429,6 +433,12 @@ const CreateItemPage = () => {
 
     if (selectedImages.length === 0) {
       setError('Debes seleccionar al menos una imagen');
+      setLoading(false);
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError('Debes aceptar los Términos y Condiciones de Uso');
       setLoading(false);
       return;
     }
@@ -618,205 +628,327 @@ const CreateItemPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 bg-blue-50">
-        <div className="max-w-3xl mx-auto bg-red-50">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Publicar un artículo</h1>
-          
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Título
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
-                placeholder="Ingresa el título del artículo"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Descripción
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
-                placeholder="Describe tu artículo"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Categoría
-              </label>
-              <select
-                name="categoryId"
-                value={formData.categoryId}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
-              >
-                <option value="">Selecciona una categoría</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de Precio
-              </label>
-              <select
-                name="priceType"
-                value={formData.priceType}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
-              >
-                <option value="">Selecciona el tipo de precio</option>
-                <option value="hourly">Por hora</option>
-                <option value="daily">Por día</option>
-              </select>
-            </div>
-
-            {formData.priceType === 'hourly' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Precio por hora
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    name="pricePerHour"
-                    value={formData.pricePerHour}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
-                    placeholder="0.00"
-                  />
+      
+      <main className="w-full px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+          {/* Sección del formulario (75% del ancho) */}
+          <div className="lg:w-3/4">
+            <div className="p-8 bg-[#dddddd] rounded-xl">
+              <h1 className="text-3xl font-bold text-gray-900 mb-8">Publicar un artículo</h1>          
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-600">{error}</p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {formData.priceType === 'daily' && (
-              <div>
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="md:flex">
+                  {/* Columna izquierda - Formulario */}
+                  <div className="p-8 md:w-1/2">
+                  <form id="item-form" onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Título
+                      </label>
+                      <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
+                        placeholder="Ingresa el título del artículo"
+                      />
+                    </div>
+
+                    <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Precio por día
+                  Descripción
                 </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    name="pricePerDay"
-                    value={formData.pricePerDay}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-            )}
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
+                  placeholder="Describe tu artículo"
+                />
+                    </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Imágenes
-              </label>
-              <div className="mt-1">
-                {imagePreviewUrls.length === 0 ? (
-                  <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                    <div className="space-y-1 text-center">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                        aria-hidden="true"
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Categoría
+                      </label>
+                      <select
+                        name="categoryId"
+                        value={formData.categoryId}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
                       >
-                        <path
-                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <div className="flex text-sm text-gray-600">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-[#FFC107] hover:text-[#ffb300] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#FFC107]"
-                        >
-                          <span>Subir imágenes</span>
-                          <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            className="sr-only"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageChange}
-                          />
+                        <option value="">Selecciona una categoría</option>
+                        {categories.map(category => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo de Precio
+                      </label>
+                      <select
+                        name="priceType"
+                        value={formData.priceType}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
+                      >
+                        <option value="">Selecciona el tipo de precio</option>
+                        <option value="hourly">Por hora</option>
+                        <option value="daily">Por día</option>
+                      </select>
+                    </div>
+
+                    {formData.priceType === 'hourly' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Precio (acorde a Tipo de Precio) por Hora/Día
                         </label>
-                        <p className="pl-1">o arrastrar y soltar</p>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2 text-gray-500">$</span>
+                          <input
+                            type="number"
+                            name="pricePerHour"
+                            value={formData.pricePerHour}
+                            onChange={handleInputChange}
+                            required
+                            min="0"
+                            step="0.01"
+                            className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
+                            placeholder="0.00"
+                          />
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, GIF hasta 10MB
+                    )}
+
+                    {formData.priceType === 'daily' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Precio por día
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2 text-gray-500">$</span>
+                          <input
+                            type="number"
+                            name="pricePerDay"
+                            value={formData.pricePerDay}
+                            onChange={handleInputChange}
+                            required
+                            min="0"
+                            step="0.01"
+                            className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#FFC107] focus:border-[#FFC107]"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <GoogleMapsWrapper onMapsAvailable={handleMapsAvailable}>
+                      {renderLocationInput()}
+                    </GoogleMapsWrapper>
+
+                  </form>
+                </div>
+                
+                {/* Columna derecha - Imágenes */}
+                <div className="p-8 md:w-1/2 bg-gray-50">
+                  <div className="sticky top-8 pt-4 pb-4 bottom-8">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Imágenes del artículo</h3>
+                    <div className="space-y-4">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                        {imagePreviewUrls.length === 0 ? (
+                          <div className="space-y-3">
+                            <svg
+                              className="mx-auto h-12 w-12 text-gray-400"
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            <div className="flex flex-col items-center text-sm text-gray-600">
+                              <label
+                                htmlFor="file-upload"
+                                className="relative cursor-pointer bg-white rounded-md font-medium text-[#FFC107] hover:text-[#ffb300] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#FFC107]"
+                              >
+                                <span>Subir imágenes</span>
+                                <input
+                                  id="file-upload"
+                                  name="file-upload"
+                                  type="file"
+                                  className="sr-only"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={handleImageChange}
+                                />
+                              </label>
+                              <p className="mt-1">o arrastrar y soltar</p>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              PNG, JPG, GIF hasta 10MB
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {renderImagePreview()}
+                            <div className="mt-4 text-center">
+                              <label
+                                htmlFor="file-upload"
+                                className="text-sm font-medium text-[#FFC107] hover:text-[#ffb300] cursor-pointer"
+                              >
+                                Agregar más imágenes
+                                <input
+                                  id="file-upload"
+                                  name="file-upload"
+                                  type="file"
+                                  className="sr-only"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={handleImageChange}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 text-center">
+                        La primera imagen será la imagen principal del artículo.
                       </p>
                     </div>
+                  </div>                  
+                  {renderAvailabilitySection()}
+
+                  <div className="space-y-6" style={{ marginTop: '2rem'}}>
+                    <label htmlFor="condition" className="block text-sm font-bold text-gray-700">
+                      Condición del artículo
+                    </label>
+                    <select
+                      id="condition"
+                      name="condition"
+                      className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={itemCondition}
+                      onChange={(e) => setItemCondition(e.target.value)}
+                    >
+                      <option value="excelent">Excelente</option>
+                      <option value="good">Bueno</option>
+                      <option value="fair">Regular</option>
+                      <option value="poor">Malo</option>
+                    </select>
                   </div>
-                ) : (
-                  renderImagePreview()
-                )}
+
+                  <div className="space-y-6" style={{ marginTop: '2rem'}}>
+                    <label htmlFor="delivery" className="block text-sm font-bold text-gray-700">
+                      Entrega/Envío del artículo
+                    </label>
+                    <select
+                      id="delivery"
+                      name="delivery"
+                      className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      value={itemDelivery}
+                      onChange={(e) => setItemDelivery(e.target.value)}
+                    >
+                      <option value="envioPorCorreo">Envío por correo</option>
+                      <option value="entregaEnPersona">Entrega en persona</option>
+                      <option value="retiraEnComercio">Retira en comercio/casa</option>
+                    </select>
+                  </div>
+
+                  </div>
+                </div>
+                {/* Botón de envío en la parte inferior */}
+                <div className="px-8 py-6 bg-gray-50 border-t border-gray-100" style={{ textAlign: 'right' }}>
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <div className="flex items-center h-5">
+                        <input
+                          id="terms"
+                          name="terms"
+                          type="checkbox"
+                          checked={acceptedTerms}
+                          onChange={(e) => setAcceptedTerms(e.target.checked)}
+                          className="h-4 w-4 text-[#FFC107] focus:ring-[#FFC107] border-gray-300 rounded"
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label htmlFor="terms" className="font-medium text-gray-700">
+                          Estoy de acuerdo con los{' '}
+                          <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer" className="text-[#FFC107] hover:text-[#ffb300] underline">
+                            Términos y Condiciones de Uso
+                          </a>
+                        </label>
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      form="item-form"
+                      disabled={loading || !acceptedTerms}
+                      className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${acceptedTerms ? 'bg-[#FFC107] hover:bg-[#ffb300]' : 'bg-gray-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFC107] disabled:opacity-50`}
+                    >
+                      {loading ? 'Publicando...' : 'Publicar artículo'}
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p className="mt-2 text-sm text-gray-500">
-                Selecciona las imágenes de tu artículo. La primera imagen será la imagen principal.
+            </div>
+          </div>
+          
+          {/* Sección de la imagen (25% del ancho) */}
+          <div className="lg:w-1/4">
+            <div className="bg-white rounded-xl shadow-md p-6 h-full">
+              <h2 className="text-xl font-semibold mb-4">¿Necesitas ayuda?</h2>
+              <div className="aspect-w-1 aspect-h-1 mb-4">
+                <img 
+                  src="/images/imagen-soporte.png" 
+                  alt="Asistencia para publicar"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+              <p className="text-gray-600 text-sm">
+                Completa todos los campos del formulario para publicar tu artículo. 
+                Si tienes dudas, consulta nuestra guía de publicación.
               </p>
+              <div className="flex items-center justify-between mt-4 gap-4">
+                <a
+                  href="/guias/publicar-articulo"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFC107] bg-[#d2691e] hover:bg-[#d74c20]"
+                >
+                  Ver Guía de Publicación
+                </a>
+                <a
+                  href="https://wa.me/543412345678"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFC107] bg-[#3b82f680] hover:bg-[#004fcf80]"
+                >
+                  Contactar a Soporte
+                </a>
+              </div>
+
             </div>
-
-            <GoogleMapsWrapper onMapsAvailable={handleMapsAvailable}>
-              {renderLocationInput()}
-            </GoogleMapsWrapper>
-
-            {renderAvailabilitySection()}
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FFC107] hover:bg-[#ffb300] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFC107] ${
-                  loading ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {loading ? 'Publicando...' : 'Publicar artículo'}
-              </button>
-            </div>
-          </form>
-        </div>
-        <div className="max-w-2xl mx-auto bg-green-50">
-          <p>Formulario terminado</p>
+          </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );

@@ -26,8 +26,10 @@ function LoginPage() {
   return (
     <div className="bg-[#F5F7FA] min-h-screen flex flex-col">
       <Header />
-      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-lg">
+
+      <div className="flex-grow flex items-left justify-left sm:px-18 py-12 lg:px-24 py-16 gap-8 bg-no-repeat bg-center bg-cover" style={{backgroundImage: 'url(/images/login-background.png)'}}>
+
+        <div className="max-w-2xl w-full space-y-8 bg-white p-8 rounded-2xl shadow-lg">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Iniciar Sesión
@@ -88,6 +90,7 @@ function LoginPage() {
             </div>
           </form>
         </div>
+
       </div>
       <Footer />
     </div>

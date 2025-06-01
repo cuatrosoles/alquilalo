@@ -17,6 +17,7 @@ import CreateItemPage from './pages/CreateItemPage';
 import RentalConfirmationPage from './pages/RentalConfirmationPage';
 import PaymentStatusPage from './pages/PaymentStatusPage';
 import PaymentHistoryPage from './pages/PaymentHistoryPage';
+import ContactPage from './pages/ContactPage';
 import { Toaster } from 'react-hot-toast';
 import './App.css'; // Asegúrate de que este archivo exista y esté configurado correctamente
 
@@ -43,6 +44,7 @@ function AppContent() {
         <Route path="/items/:itemId/book" element={<PrivateRoute><CreateBooking /></PrivateRoute>} />
         <Route path="/publicar" element={<PrivateRoute><CreateItemPage /></PrivateRoute>} />
         <Route path="/mis-pagos" element={<PrivateRoute><PaymentHistoryPage /></PrivateRoute>} />
+        <Route path="/contacto" element={<ContactPage />} />
         
         {/* Ruta comodín para manejar rutas no encontradas */}
         <Route path="*" element={<Navigate to="/" replace />} />
