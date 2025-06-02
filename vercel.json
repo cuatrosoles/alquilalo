@@ -31,15 +31,12 @@
       "dest": "backend/src/server.js"
     },
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/admin/(.*)",
-      "dest": "/admin/index.html"
+      "dest": "frontend/admin/build/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "frontend/user/build/$1"
     }
   ],
   "env": {
