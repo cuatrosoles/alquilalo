@@ -26,13 +26,18 @@
       "dest": "backend/src/server.js"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/admin/(.*)",
-      "dest": "frontend/admin/build/$1"
+      "dest": "/admin/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/user/build/$1"
+      "dest": "/index.html"
     }
   ],
-  "buildCommand": "npm install --prefix backend && npm install --prefix frontend/user && npm run build --prefix frontend/user && npm install --prefix frontend/admin && npm run build --prefix frontend/admin"
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

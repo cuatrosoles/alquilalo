@@ -31,8 +31,7 @@ app.get("*", (req, res) => {
 // Configuración de CORS
 const allowedOrigins = [
   "https://alquilalo.vercel.app",
-  "https://alquilalo.vercel.com/api",
-  "https://alquilalo.vercel.com/admin",
+  "https://alquilalo.vercel.com",
   "https://api.mercadopago.com",
   "https://www.mercadopago.com",
   "https://www.mercadopago.com.ar",
@@ -43,15 +42,11 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg =
-        "The CORS policy for this site does not allow access from the specified Origin.";
-      return callback(new Error(msg), false);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
     }
-    return callback(null, true);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -65,35 +60,15 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Configuración para el webhook de MercadoPago
 app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
 
-// Usa las rutas de autenticación
+// Rutas de la API
 app.use("/api/auth", authRoutes);
-// Usa las rutas de artículos
 app.use("/api/items", itemRoutes);
-// Usa las rutas de categorías
 app.use("/api/categories", categoryRoutes);
-// Usa las rutas de alquileres
 app.use("/api/rentals", rentalRoutes);
-// Usa las rutas de mensajes
 app.use("/api/messages", messageRoutes);
-// Usa las rutas de valoraciones
 app.use("/api/reviews", reviewRoutes);
-// Usa las rutas de pagos
 app.use("/api/payments", paymentRoutes);
-// Usa las rutas de reclamaciones de seguro
 app.use("/api/insurance-claims", insuranceClaimRoutes);
-
-// Configuración para servir archivos estáticos en producción
-if (process.env.NODE_ENV === "production") {
-  // Servir archivos estáticos de React
-  app.use(express.static(path.join(__dirname, "../../../frontend/user/build")));
-
-  // Manejar cualquier otra ruta que no sea de la API
-  app.get("*", (req, res) => {
-    res.sendFile(
-      path.join(__dirname, "../../../frontend/user/build", "index.html")
-    );
-  });
-}
 
 // Ruta de prueba
 app.get("/api", (req, res) => {
