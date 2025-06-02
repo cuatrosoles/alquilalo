@@ -4,12 +4,34 @@
     {
       "src": "backend/src/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/user/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "frontend/admin/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "backend/src/server.js"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "frontend/admin/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/user/dist/$1"
     }
   ],
   "buildCommand": "npm install --prefix backend && npm install --prefix frontend/user && npm run build --prefix frontend/user && npm install --prefix frontend/admin && npm run build --prefix frontend/admin"
