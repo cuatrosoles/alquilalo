@@ -1,22 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../config/firebase';
-import { collection, getDocs, query, orderBy, limit, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import Layout from '../components/Layout';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { db } from "../config/firebase";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import Layout from "../components/Layout";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const Rentals = () => {
   const navigate = useNavigate();
   const [rentals, setRentals] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchRentals = async () => {
       try {
         const q = query(
-          collection(db, 'rentals'),
-          orderBy('startDate', 'desc'),
+          collection(db, "rentals"),
+          orderBy("startDate", "desc"),
           limit(50)
         );
         const querySnapshot = await getDocs(q);
@@ -26,20 +34,20 @@ const Rentals = () => {
         });
         setRentals(rentalsData);
       } catch (error) {
-        console.error('Error fetching rentals:', error);
+        console.error("Error fetching rentals:", error);
       }
     };
     fetchRentals();
   }, []);
 
   const handleDeleteRental = async (rentalId) => {
-    if (!window.confirm('¿Estás seguro de eliminar este alquiler?')) return;
+    if (!window.confirm("¿Estás seguro de eliminar este alquiler?")) return;
 
     try {
-      await deleteDoc(doc(db, 'rentals', rentalId));
-      setRentals(rentals.filter(rental => rental.id !== rentalId));
+      await deleteDoc(doc(db, "rentals", rentalId));
+      setRentals(rentals.filter((rental) => rental.id !== rentalId));
     } catch (error) {
-      console.error('Error deleting rental:', error);
+      console.error("Error deleting rental:", error);
     }
   };
 
@@ -48,13 +56,14 @@ const Rentals = () => {
   };
 
   const handleAddRental = () => {
-    navigate('/rentals/new');
+    navigate("/rentals/new");
   };
 
-  const filteredRentals = rentals.filter(rental => 
-    rental.itemId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rental.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rental.status.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRentals = rentals.filter(
+    (rental) =>
+      rental.itemId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -114,19 +123,25 @@ const Rentals = () => {
                     {rental.userId}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {format(new Date(rental.startDate), 'dd/MM/yyyy', { locale: es })}
+                    {format(new Date(rental.startDate), "dd/MM/yyyy", {
+                      locale: es,
+                    })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {format(new Date(rental.endDate), 'dd/MM/yyyy', { locale: es })}
+                    {format(new Date(rental.endDate), "dd/MM/yyyy", {
+                      locale: es,
+                    })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      rental.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : rental.status === 'pending' 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : 'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        rental.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : rental.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {rental.status}
                     </span>
                   </td>

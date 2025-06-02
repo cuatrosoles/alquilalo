@@ -31,8 +31,8 @@ app.get("*", (req, res) => {
 // Configuración de CORS
 const allowedOrigins = [
   "https://alquilalo.vercel.app",
-  //'https://alquilalo.onrender.com',
-  //'https://alquilalo-admin.onrender.com',
+  "https://alquilalo.vercel.com/api",
+  "https://alquilalo.vercel.com/admin",
   "https://api.mercadopago.com",
   "https://www.mercadopago.com",
   "https://www.mercadopago.com.ar",
