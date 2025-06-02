@@ -13,7 +13,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build",
-        "buildCommand": "npm install --prefix frontend/user && npm run build --prefix frontend/user"
+        "buildCommand": "cd frontend/user && npm install && npm run build"
       }
     },
     {
@@ -21,7 +21,7 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build",
-        "buildCommand": "npm install --prefix frontend/admin && npm run build --prefix frontend/admin"
+        "buildCommand": "cd frontend/admin && npm install && npm run build"
       }
     }
   ],
