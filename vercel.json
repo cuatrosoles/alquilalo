@@ -32,21 +32,22 @@
     },
     {
       "src": "/admin/(.*)",
-      "dest": "frontend/admin/build/$1",
-      "continue": true
-    },
-    {
-      "src": "/admin",
-      "dest": "frontend/admin/build/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/user/build/index.html",
-      "continue": true
+      "dest": "frontend/admin/build/$1"
     },
     {
       "src": "/(.*)",
       "dest": "frontend/user/build/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/admin/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "env": {
