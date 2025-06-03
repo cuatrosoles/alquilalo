@@ -31,16 +31,16 @@
       "dest": "backend/src/server.js"
     },
     {
-      "src": "/admin/.*",
-      "dest": "frontend/admin/build/index.html"
+      "src": "/admin/(.*)",
+      "dest": "frontend/admin/build/$1"
     },
     {
       "src": "/admin",
       "dest": "frontend/admin/build/index.html"
     },
     {
-      "src": "/.*",
-      "dest": "frontend/user/build/index.html"
+      "src": "/(.*)",
+      "dest": "frontend/user/build/$1"
     }
   ],
   "env": {
