@@ -32,7 +32,8 @@
     },
     {
       "src": "/admin/(.*)",
-      "dest": "frontend/admin/build/$1"
+      "dest": "frontend/admin/build/$1",
+      "continue": true
     },
     {
       "src": "/admin",
