@@ -20,14 +20,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Serve the static files from the React app
-app.use(express.static(path.join(__dirname, "../frontend/user/dist")));
-
-// Handle requests by serving index.html for all routes
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/user/dist", "index.html"));
-});
-
 // Configuración de CORS
 const allowedOrigins = [
   "https://alquilalo.vercel.app",
