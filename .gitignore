@@ -36,8 +36,8 @@ yarn-error.log*
 .nuxt/
 
 # Backend
-/backend/node_modules/
-/backend/package-lock.json
+/api/node_modules/
+/api/package-lock.json
 
 # Frontend específico
 /frontend/admin/node_modules/
