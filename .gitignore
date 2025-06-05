@@ -46,10 +46,10 @@ yarn-error.log*
 /frontend/admin/.next
 /frontend/admin/out
 /frontend/admin/package-lock.json
-###/frontend/admin/build
+/frontend/admin/build
 /frontend/user/node_modules/
 /frontend/user/.next
 /frontend/user/out
 /frontend/user/package-lock.json
-###/frontend/user/build
+/frontend/user/build
 .vercel
