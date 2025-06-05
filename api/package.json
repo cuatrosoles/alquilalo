@@ -1,12 +1,12 @@
 {
-  "name": "backend",
+  "name": "alquilalo-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/server.js",
+  "description": "Backend API para Alquilalo",
+  "main": "src/index.js",
   "scripts": {
-    "postinstall": "cd ../frontend/user && npm install && npm run build",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "build": "echo 'API build completed'"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +15,7 @@
     "@faker-js/faker": "^9.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.7",
     "express": "^4.18.2",
     "firebase": "^11.7.1",
     "firebase-admin": "^13.3.0",

@@ -2,54 +2,58 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/src/server.js",
+      "src": "api/src/server.js",
       "use": "@vercel/node",
       "config": {
-        "buildCommand": "npm install --prefix backend"
+        "maxLambdaSize": "50mb"
       }
     },
     {
       "src": "frontend/user/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "buildCommand": "cd frontend/user && npm install && npm run build"
+        "distDir": "build"
       }
     },
     {
       "src": "frontend/admin/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "buildCommand": "cd frontend/admin && npm install && npm run build"
+        "distDir": "build"
       }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/src/server.js"
+      "dest": "/api/src/server.js"
+    },
+    {
+      "src": "/admin/static/(.*)",
+      "dest": "/frontend/admin/build/static/$1"
     },
     {
       "src": "/admin/(.*)",
-      "dest": "frontend/admin/build/$1"
+      "dest": "/frontend/admin/build/index.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/frontend/admin/build/index.html"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/frontend/user/build/static/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/user/build/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/admin/(.*)",
-      "dest": "/admin/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/frontend/user/build/index.html"
     }
   ],
+  "functions": {
+    "api/src/server.js": {
+      "maxDuration": 30
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
