@@ -1,14 +1,15 @@
 // src/services/payment.service.js
-import axios from 'axios';
-import { auth } from '../config/firebase';
+import axios from "axios";
+import { auth } from "../config/firebase";
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://alquilalo-backend.onrender.com/api';
+const API_URL =
+  process.env.REACT_APP_API_URL || "https://alquilalo.vercel.app/api";
 
 // Configuración de axios para incluir el token de autenticación
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -35,11 +36,14 @@ const PaymentService = {
    */
   async createPaymentIntent(paymentData) {
     try {
-      const response = await api.post('/payments/create-payment-intent', paymentData);
+      const response = await api.post(
+        "/payments/create-payment-intent",
+        paymentData
+      );
       return response.data;
     } catch (error) {
-      console.error('Error al crear intención de pago:', error);
-      throw error.response?.data || { message: 'Error al crear el pago' };
+      console.error("Error al crear intención de pago:", error);
+      throw error.response?.data || { message: "Error al crear el pago" };
     }
   },
 
@@ -53,8 +57,12 @@ const PaymentService = {
       const response = await api.get(`/payments/status/${paymentId}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener estado del pago:', error);
-      throw error.response?.data || { message: 'Error al obtener el estado del pago' };
+      console.error("Error al obtener estado del pago:", error);
+      throw (
+        error.response?.data || {
+          message: "Error al obtener el estado del pago",
+        }
+      );
     }
   },
 
@@ -66,32 +74,32 @@ const PaymentService = {
    * @param {number} offset - Desplazamiento
    * @returns {Promise<Object>} - Lista de pagos
    */
-  async getUserPayments(userId, type = 'all', limit = 10, offset = 0) {
+  async getUserPayments(userId, type = "all", limit = 10, offset = 0) {
     try {
       const response = await api.get(`/payments/user/${userId}`, {
         params: { type, limit, offset },
       });
       return response.data;
     } catch (error) {
-      console.error('Error al obtener pagos del usuario:', error);
-      throw error.response?.data || { message: 'Error al obtener los pagos' };
+      console.error("Error al obtener pagos del usuario:", error);
+      throw error.response?.data || { message: "Error al obtener los pagos" };
     }
   },
 
   // Create a payment preference for MercadoPago
   async createPaymentPreference(rentalData, depositAmount, description) {
     try {
-      const response = await api.post('/payments/create-preference', {
+      const response = await api.post("/payments/create-preference", {
         rentalData,
         amount: depositAmount,
         description,
         successUrl: `${window.location.origin}/payment/success`,
         failureUrl: `${window.location.origin}/payment/failure`,
-        pendingUrl: `${window.location.origin}/payment/pending`
+        pendingUrl: `${window.location.origin}/payment/pending`,
       });
       return response.data;
     } catch (error) {
-      console.error('Error creating payment preference:', error);
+      console.error("Error creating payment preference:", error);
       throw error;
     }
   },
@@ -102,7 +110,7 @@ const PaymentService = {
       const response = await api.get(`/payments/status/${paymentId}`);
       return response.data;
     } catch (error) {
-      console.error('Error getting payment status:', error);
+      console.error("Error getting payment status:", error);
       throw error;
     }
   },
@@ -110,12 +118,12 @@ const PaymentService = {
   // Get user payment history
   async getUserPaymentsMercadoPago(userId, status, limit = 10, offset = 0) {
     try {
-      const response = await api.get('/payments/history', {
-        params: { userId, status, limit, offset }
+      const response = await api.get("/payments/history", {
+        params: { userId, status, limit, offset },
       });
       return response.data;
     } catch (error) {
-      console.error('Error getting payment history:', error);
+      console.error("Error getting payment history:", error);
       throw error;
     }
   },
@@ -123,13 +131,13 @@ const PaymentService = {
   // Process payment webhook
   async processWebhook(data) {
     try {
-      const response = await api.post('/payments/webhook', data);
+      const response = await api.post("/payments/webhook", data);
       return response.data;
     } catch (error) {
-      console.error('Error processing webhook:', error);
+      console.error("Error processing webhook:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default PaymentService;
