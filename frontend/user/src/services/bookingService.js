@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://alquilalo-backend.onrender.com/api';
+const API_URL =
+  process.env.REACT_APP_API_URL || "https://alquilalo.vercel.app/api";
 
 const bookingService = {
   // Crear una nueva reserva
@@ -9,7 +10,7 @@ const bookingService = {
       const response = await axios.post(`${API_URL}/bookings`, {
         itemId,
         startDate,
-        endDate
+        endDate,
       });
       return response.data;
     } catch (error) {
@@ -40,14 +41,17 @@ const bookingService = {
   // Actualizar el estado de una reserva
   updateBookingStatus: async (bookingId, status) => {
     try {
-      const response = await axios.patch(`${API_URL}/bookings/${bookingId}/status`, {
-        status
-      });
+      const response = await axios.patch(
+        `${API_URL}/bookings/${bookingId}/status`,
+        {
+          status,
+        }
+      );
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
-  }
+  },
 };
 
-export default bookingService; 
+export default bookingService;
