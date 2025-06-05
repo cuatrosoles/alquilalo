@@ -116,7 +116,7 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/frontend/user">
+      <Router basename="/">
         <AppContent />
       </Router>
     </AuthProvider>
