@@ -23,6 +23,7 @@ const app = express();
 // Configuración de CORS
 const allowedOrigins = [
   "https://alquilalo.vercel.app",
+  "https://*.vercel.app",
   "https://alquilalo.vercel.com",
   "https://api.mercadopago.com",
   "https://www.mercadopago.com",

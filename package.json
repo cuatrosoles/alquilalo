@@ -1,0 +1,46 @@
+{
+  "name": "alquilalo-monorepo",
+  "version": "1.0.0",
+  "description": "Alquilalo - Plataforma de alquiler completa con React y Node.js",
+  "private": true,
+  "scripts": {
+    "build": "npm run install:all && npm run build:user && npm run build:admin",
+    "build:user": "cd frontend/user && npm install && npm run build",
+    "build:admin": "cd frontend/admin && npm install && npm run build",
+    "build:api": "cd api && npm install",
+    "start": "node api/src/server.js",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:user\" \"npm run dev:admin\"",
+    "dev:user": "cd frontend/user && npm start",
+    "dev:admin": "cd frontend/admin && npm run start",
+    "dev:api": "cd api && npm run dev",
+    "install:all": "cd api && npm install && cd ../frontend/user && npm install && cd ../admin && npm install",
+    "install:api": "cd api && npm install",
+    "install:user": "cd frontend/user && npm install",
+    "install:admin": "cd frontend/admin && npm install",
+    "test": "cd frontend/user && npm test && cd ../admin && npm test",
+    "clean": "rm -rf frontend/user/build frontend/admin/build node_modules api/node_modules frontend/user/node_modules frontend/admin/node_modules",
+    "vercel:build": "npm run build"
+  },
+  "engines": {
+    "node": ">=18.x",
+    "npm": ">=8.x"
+  },
+  "workspaces": [
+    "api",
+    "frontend/user",
+    "frontend/admin"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "alquiler",
+    "react",
+    "nodejs",
+    "firebase",
+    "mercadopago",
+    "vercel"
+  ],
+  "author": "JuanProgramador Argentina",
+  "license": "MIT"
+}

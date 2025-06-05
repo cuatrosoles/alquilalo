@@ -1,7 +1,7 @@
 {
   "name": "user",
   "version": "0.1.0",
-  "homepage": ".",
+  "homepage": "/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -32,10 +32,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "vercel-build": "cross-env GENERATE_SOURCEMAP=false react-scripts build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
