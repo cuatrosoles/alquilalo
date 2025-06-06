@@ -1,12 +1,12 @@
 // src/config/config.js
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const config = {
-  env: process.env.NODE_ENV || 'development',
+  env: process.env.NODE_ENV || "development",
   port: process.env.PORT || 5000,
-  databaseUrl: process.env.DATABASE_URL, // Por ahora, aunque usaremos Firebase
+  databaseUrl: "https://multirent-918e4.firebaseio.com", // Por ahora, aunque usaremos Firebase
   firebaseConfig: {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
