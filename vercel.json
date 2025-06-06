@@ -22,9 +22,6 @@
   ],
   "routes": [
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "/api/src/server.js"
     },
@@ -63,14 +60,6 @@
     {
       "src": "/asset-manifest.json",
       "dest": "/frontend/user/build/asset-manifest.json"
-    },
-    {
-      "src": "/css/(.*)",
-      "dest": "/frontend/user/build/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/frontend/user/build/js/$1"
     },
     {
       "src": "/(.*)",
