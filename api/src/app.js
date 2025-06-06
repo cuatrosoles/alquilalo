@@ -65,8 +65,19 @@ app.use("/api/insurance-claims", insuranceClaimRoutes);
 // Ruta de prueba
 app.get("/api", (req, res) => {
   res.json({
-    message: "¡Bienvenido a la API de Alquilalo!",
+    message: "🚀 ¡Bienvenido a la API de Alquilalo!",
     environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString(),
+    status: "online",
+  });
+});
+
+// Ruta de health check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
     timestamp: new Date().toISOString(),
   });
 });
@@ -77,7 +88,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: "Error interno del servidor",
-    error: process.env.NODE_ENV === "development" ? err.message : {},
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal Server Error",
+  });
+});
+
+// Manejo de rutas no encontradas
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Ruta no encontrada",
+    path: req.originalUrl,
   });
 });
 

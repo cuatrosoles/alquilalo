@@ -1,0 +1,15 @@
+{
+  "name": "alquilalo-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Building all applications...' && npm run install:all && npm run build:user && npm run build:admin",
+    "build:user": "cd frontend/user && npm run build",
+    "build:admin": "cd frontend/admin && npm run build",
+    "install:all": "cd api && npm install && cd ../frontend/user && npm install && cd ../admin && npm install",
+    "postinstall": "npm run install:all"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
