@@ -33,16 +33,32 @@
       "dest": "/frontend/admin/build/static/$1"
     },
     {
-      "src": "/admin/(.*)",
-      "dest": "/frontend/admin/build/index.html"
+      "src": "/admin/manifest.json",
+      "dest": "/frontend/admin/build/manifest.json"
     },
     {
-      "src": "/admin",
+      "src": "/admin/favicon.ico",
+      "dest": "/frontend/admin/build/favicon.ico"
+    },
+    {
+      "src": "/admin/(.*)?",
       "dest": "/frontend/admin/build/index.html"
     },
     {
       "src": "/static/(.*)",
       "dest": "/frontend/user/build/static/$1"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/frontend/user/build/manifest.json"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/frontend/user/build/favicon.ico"
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "/frontend/user/build/css/$1"
     },
     {
       "src": "/(.*)",
