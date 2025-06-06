@@ -8,13 +8,10 @@
 # Production
 /build
 /dist
-/node_modules
 
 # Misc
 .DS_Store
-.env
 .env.local
-.env.example
 .env.development.local
 .env.test.local
 .env.production.local
@@ -39,18 +36,18 @@ yarn-error.log*
 .nuxt/
 
 # Backend
-/api/node_modules/
-/api/package-lock.json
+/backend/node_modules/
+/backend/package-lock.json
 
 # Frontend específico
 /frontend/admin/node_modules/
 /frontend/admin/.next
 /frontend/admin/out
 /frontend/admin/package-lock.json
-/frontend/admin/build
+###/frontend/admin/build
 /frontend/user/node_modules/
 /frontend/user/.next
 /frontend/user/out
 /frontend/user/package-lock.json
-/frontend/user/build
+###/frontend/user/build
 .vercel

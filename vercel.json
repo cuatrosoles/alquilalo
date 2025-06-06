@@ -49,6 +49,11 @@
       "dest": "/frontend/user/build/index.html"
     }
   ],
+  "functions": {
+    "api/src/server.js": {
+      "maxDuration": 30
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
