@@ -9,7 +9,9 @@ import config from "./config.js";
 if (!admin.apps.length) {
   try {
     // Usar credenciales desde la variable de entorno
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    const serviceAccount = JSON.parse(
+      process.env.GOOGLE_APPLICATION_CREDENTIALS
+    );
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
       projectId: config.firebaseConfig.projectId,
