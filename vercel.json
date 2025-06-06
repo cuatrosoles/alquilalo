@@ -30,18 +30,6 @@
       "dest": "/frontend/admin/build/static/$1"
     },
     {
-      "src": "/admin/manifest.json",
-      "dest": "/frontend/admin/build/manifest.json"
-    },
-    {
-      "src": "/admin/favicon.ico",
-      "dest": "/frontend/admin/build/favicon.ico"
-    },
-    {
-      "src": "/admin/asset-manifest.json",
-      "dest": "/frontend/admin/build/asset-manifest.json"
-    },
-    {
       "src": "/admin/(.*)",
       "dest": "/frontend/admin/build/index.html"
     },
@@ -50,20 +38,11 @@
       "dest": "/frontend/user/build/static/$1"
     },
     {
-      "src": "/manifest.json",
-      "dest": "/frontend/user/build/manifest.json"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/frontend/user/build/favicon.ico"
-    },
-    {
-      "src": "/asset-manifest.json",
-      "dest": "/frontend/user/build/asset-manifest.json"
-    },
-    {
       "src": "/(.*)",
       "dest": "/frontend/user/build/index.html"
     }
-  ]
+  ],
+  "outputDirectory": "./",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
 }
