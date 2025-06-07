@@ -1,6 +1,6 @@
 [build]
   base = "frontend/user"
-  publish = "frontend/user/build"
+  publish = "build"
   command = "npm run build"
 
 [build.environment]
