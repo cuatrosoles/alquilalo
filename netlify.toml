@@ -1,5 +1,5 @@
 [build]
-  base = "/"
+  base = "frontend/user"
   publish = "build"
   command = "npm run build"
 
