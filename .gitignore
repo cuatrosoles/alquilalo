@@ -51,3 +51,7 @@ yarn-error.log*
 /frontend/user/out
 /frontend/user/package-lock.json
 ###/frontend/user/build
+
+# Netlify
+/netlify
+
