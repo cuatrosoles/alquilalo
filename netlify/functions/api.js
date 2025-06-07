@@ -46,21 +46,30 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Rutas de la API
-app.use("/.netlify/functions/api/auth", authRoutes);
-app.use("/.netlify/functions/api/items", itemRoutes);
-app.use("/.netlify/functions/api/categories", categoryRoutes);
-app.use("/.netlify/functions/api/rentals", rentalRoutes);
-app.use("/.netlify/functions/api/messages", messageRoutes);
-app.use("/.netlify/functions/api/reviews", reviewRoutes);
-app.use("/.netlify/functions/api/payments", paymentRoutes);
-app.use("/.netlify/functions/api/insurance-claims", insuranceClaimRoutes);
+// IMPORTANTE: Las rutas deben coincidir con las llamadas del frontend
+app.use("/auth", authRoutes);
+app.use("/items", itemRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/rentals", rentalRoutes);
+app.use("/messages", messageRoutes);
+app.use("/reviews", reviewRoutes);
+app.use("/payments", paymentRoutes);
+app.use("/insurance-claims", insuranceClaimRoutes);
 
 // Ruta de prueba
-app.get("/.netlify/functions/api", (req, res) => {
+app.get("/", (req, res) => {
   res.json({
     message: "🚀 ¡API de Alquilalo en Netlify!",
     environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString(),
+    status: "online",
+  });
+});
+
+// Ruta de salud
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
     timestamp: new Date().toISOString(),
   });
 });
@@ -71,7 +80,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: "Error interno del servidor",
-    error: process.env.NODE_ENV === "development" ? err.message : {},
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal Server Error",
+  });
+});
+
+// Manejo de rutas no encontradas
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Ruta no encontrada",
+    path: req.originalUrl,
   });
 });
 
