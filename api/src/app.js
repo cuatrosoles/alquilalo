@@ -22,8 +22,7 @@ const app = express();
 
 // Configuración de CORS
 const allowedOrigins = [
-  "https://alquilalo.vercel.app",
-  "https://alquilalo.vercel.com",
+  "https://alquilalo.netlify.app",
   "https://api.mercadopago.com",
   "https://www.mercadopago.com",
   "https://www.mercadopago.com.ar",
@@ -53,14 +52,15 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
 
 // Rutas de la API
-app.use("/api/auth", authRoutes);
-app.use("/api/items", itemRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/rentals", rentalRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/reviews", reviewRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/insurance-claims", insuranceClaimRoutes);
+// Para Netlify Functions, las rutas deben ser relativas
+app.use("/auth", authRoutes);
+app.use("/items", itemRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/rentals", rentalRoutes);
+app.use("/messages", messageRoutes);
+app.use("/reviews", reviewRoutes);
+app.use("/payments", paymentRoutes);
+app.use("/insurance-claims", insuranceClaimRoutes);
 
 // Ruta de prueba
 app.get("/api", (req, res) => {
