@@ -17,7 +17,10 @@ export const handler = async (event, context) => {
   }
 
   // Ruta de prueba básica
-  if (event.path === "/") {
+  if (
+    event.path === "/.netlify/functions/api" ||
+    event.path === "/.netlify/functions/api/"
+  ) {
     return {
       statusCode: 200,
       headers,
