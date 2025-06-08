@@ -22,7 +22,9 @@ const app = express();
 
 // Configuración de CORS
 const allowedOrigins = [
-  "https://alquilalo.netlify.app",
+  "https://alquilalo-api.vercel.app", // Tu API
+  "https://alquilalo-user.vercel.app", // Frontend User
+  "https://alquilalo-admin.vercel.app", // Frontend Admin
   "https://api.mercadopago.com",
   "https://www.mercadopago.com",
   "https://www.mercadopago.com.ar",
@@ -30,7 +32,6 @@ const allowedOrigins = [
   "http://localhost:3001",
   "http://localhost:5000",
 ];
-
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
