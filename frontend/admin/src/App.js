@@ -7,7 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/admin">
+      <Router>
         <AppRoutes />
       </Router>
     </AuthProvider>

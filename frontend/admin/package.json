@@ -1,7 +1,7 @@
 {
   "name": "admin",
   "version": "0.1.0",
-  "homepage": "/admin",
+  "homepage": "/",
   "private": true,
   "dependencies": {
     "@headlessui/react": "^1.7.18",
