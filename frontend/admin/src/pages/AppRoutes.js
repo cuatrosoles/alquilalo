@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-// Componente de login simple
+// Componente de login
 const AdminLogin = () => (
   <div
     style={{
@@ -31,106 +31,123 @@ const AdminLogin = () => (
       <p style={{ fontSize: "14px", color: "#999" }}>
         Inicia sesión como administrador para continuar
       </p>
-      <button
-        onClick={() =>
-          (window.location.href = "https://alquilalo-user.vercel.app/login")
-        }
+      <p style={{ fontSize: "12px", color: "#999", marginTop: "20px" }}>
+        Usando HashRouter para evitar conflictos
+      </p>
+    </div>
+  </div>
+);
+
+// Dashboard principal
+const AdminDashboard = () => {
+  const { currentUser } = useAuth();
+
+  return (
+    <div
+      style={{
+        padding: "40px",
+        fontFamily: "Arial, sans-serif",
+        backgroundColor: "#f8f9fa",
+        minHeight: "100vh",
+      }}
+    >
+      <header
         style={{
           backgroundColor: "#007bff",
           color: "white",
-          border: "none",
-          padding: "12px 24px",
-          borderRadius: "4px",
-          cursor: "pointer",
-          marginTop: "20px",
-          fontSize: "16px",
+          padding: "30px",
+          borderRadius: "8px",
+          marginBottom: "30px",
         }}
       >
-        Ir a Login Principal
-      </button>
-    </div>
-  </div>
-);
+        <h1>🛠️ Panel de Administración - Alquilalo</h1>
+        <p>Funcionando con HashRouter</p>
+        {currentUser && (
+          <p style={{ fontSize: "14px", opacity: 0.9 }}>
+            Usuario: {currentUser.email}
+          </p>
+        )}
+      </header>
 
-// Dashboard simple para usuarios autenticados
-const AdminDashboard = () => (
-  <div
-    style={{
-      padding: "40px",
-      fontFamily: "Arial, sans-serif",
-      backgroundColor: "#f8f9fa",
-      minHeight: "100vh",
-    }}
-  >
-    <header
-      style={{
-        backgroundColor: "#007bff",
-        color: "white",
-        padding: "30px",
-        borderRadius: "8px",
-        marginBottom: "30px",
-      }}
-    >
-      <h1>🛠️ Panel de Administración - Alquilalo</h1>
-      <p>Bienvenido al sistema de administración</p>
-    </header>
-
-    <div
-      style={{
-        backgroundColor: "white",
-        padding: "30px",
-        borderRadius: "8px",
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-      }}
-    >
-      <h2>📊 Dashboard</h2>
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "20px",
-          marginTop: "20px",
+          backgroundColor: "white",
+          padding: "30px",
+          borderRadius: "8px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
         }}
       >
+        <h2>📊 Dashboard</h2>
         <div
           style={{
-            padding: "20px",
-            backgroundColor: "#e3f2fd",
-            borderRadius: "4px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "20px",
+            marginTop: "20px",
           }}
         >
-          <h3>📦 Items</h3>
-          <p>Gestionar productos</p>
-        </div>
-        <div
-          style={{
-            padding: "20px",
-            backgroundColor: "#f3e5f5",
-            borderRadius: "4px",
-          }}
-        >
-          <h3>👥 Usuarios</h3>
-          <p>Gestionar usuarios</p>
-        </div>
-        <div
-          style={{
-            padding: "20px",
-            backgroundColor: "#e8f5e8",
-            borderRadius: "4px",
-          }}
-        >
-          <h3>📊 Reportes</h3>
-          <p>Ver estadísticas</p>
+          <div
+            style={{
+              padding: "25px",
+              backgroundColor: "#e3f2fd",
+              borderRadius: "8px",
+              border: "1px solid #bbdefb",
+            }}
+          >
+            <h3>📦 Gestión de Items</h3>
+            <p>Administrar productos del catálogo</p>
+            <div style={{ marginTop: "15px", fontSize: "12px", color: "#666" }}>
+              • Crear nuevos items
+              <br />
+              • Editar existentes
+              <br />• Gestionar inventario
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "25px",
+              backgroundColor: "#f3e5f5",
+              borderRadius: "8px",
+              border: "1px solid #e1bee7",
+            }}
+          >
+            <h3>👥 Gestión de Usuarios</h3>
+            <p>Administrar usuarios registrados</p>
+            <div style={{ marginTop: "15px", fontSize: "12px", color: "#666" }}>
+              • Ver usuarios activos
+              <br />
+              • Gestionar permisos
+              <br />• Moderar actividad
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: "25px",
+              backgroundColor: "#e8f5e8",
+              borderRadius: "8px",
+              border: "1px solid #c8e6c9",
+            }}
+          >
+            <h3>📊 Reportes</h3>
+            <p>Estadísticas y análisis</p>
+            <div style={{ marginTop: "15px", fontSize: "12px", color: "#666" }}>
+              • Métricas de uso
+              <br />
+              • Ingresos y rentas
+              <br />• Análisis de tendencias
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AppRoutes = () => {
   const { currentUser, loading } = useAuth();
 
-  // Mostrar loading mientras se verifica autenticación
   if (loading) {
     return (
       <div
@@ -143,16 +160,24 @@ const AppRoutes = () => {
           backgroundColor: "#f8f9fa",
         }}
       >
-        🔄 Verificando autenticación...
+        🔄 Cargando...
       </div>
     );
   }
 
   return (
     <Routes>
+      <Route
+        path="/"
+        element={currentUser ? <AdminDashboard /> : <AdminLogin />}
+      />
       <Route path="/login" element={<AdminLogin />} />
       <Route
-        path="/*"
+        path="/dashboard"
+        element={currentUser ? <AdminDashboard /> : <AdminLogin />}
+      />
+      <Route
+        path="*"
         element={currentUser ? <AdminDashboard /> : <AdminLogin />}
       />
     </Routes>
