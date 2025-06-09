@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useAdminCheck } from "../hooks/useAdminCheck";
+import { checkAdmin } from "../utils/checkAdmin";
 
 export const PrivateRoute = ({ children }) => {
   const { currentUser } = useAuth();
@@ -11,7 +11,7 @@ export const PrivateRoute = ({ children }) => {
   useEffect(() => {
     const check = async () => {
       if (currentUser) {
-        const isAdmin = await useAdminCheck();
+        const isAdmin = await checkAdmin();
         setIsAdmin(isAdmin);
       }
       setLoading(false);
