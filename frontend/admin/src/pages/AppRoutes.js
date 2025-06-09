@@ -1,10 +1,36 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "../components/PrivateRoute";
-import Items from "./Items";
-import FormItem from "../components/FormItem";
 
-// Componente de login para admin
+// Importar componentes de forma segura
+let Items = null;
+let FormItem = null;
+
+try {
+  Items = require("./Items").default;
+} catch (error) {
+  console.error("Error al importar Items:", error);
+  Items = () => (
+    <div style={{ padding: "20px" }}>
+      <h2>📦 Items</h2>
+      <p>Error al cargar Items</p>
+    </div>
+  );
+}
+
+try {
+  FormItem = require("../components/FormItem").default;
+} catch (error) {
+  console.error("Error al importar FormItem:", error);
+  FormItem = () => (
+    <div style={{ padding: "20px" }}>
+      <h2>📝 Formulario</h2>
+      <p>Error al cargar FormItem</p>
+    </div>
+  );
+}
+
+// Componente de login simple
 const AdminLogin = () => (
   <div
     style={{
@@ -25,6 +51,7 @@ const AdminLogin = () => (
     >
       <h1>🔐 Admin - Alquilalo</h1>
       <p>Acceso solo para administradores</p>
+      <p>Inicia sesión como administrador para continuar</p>
     </div>
   </div>
 );
@@ -32,8 +59,13 @@ const AdminLogin = () => (
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* Ruta de login */}
       <Route path="/login" element={<AdminLogin />} />
+
+      {/* Ruta raíz - redirigir a /items */}
       <Route path="/" element={<Navigate to="/items" replace />} />
+
+      {/* Rutas protegidas */}
       <Route
         path="/items"
         element={
@@ -58,6 +90,8 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
+
+      {/* Catch all - redirigir a items */}
       <Route path="*" element={<Navigate to="/items" replace />} />
     </Routes>
   );
