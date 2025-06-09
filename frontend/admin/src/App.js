@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,11 +7,42 @@ import {
   Navigate,
 } from "react-router-dom";
 
-// Componentes simples para testing
+// Import Firebase básico
+let firebaseStatus = "No inicializado";
+let firebaseError = null;
+
+try {
+  // Intentar importar Firebase
+  const { auth } = require("./config/firebase");
+  firebaseStatus = "✅ Firebase importado correctamente";
+
+  console.log("Firebase auth:", auth);
+} catch (error) {
+  firebaseStatus = "❌ Error al importar Firebase";
+  firebaseError = error.message;
+  console.error("Error Firebase:", error);
+}
+
+// Componentes simples
 const Dashboard = () => (
   <div style={{ padding: "20px" }}>
     <h2>📊 Dashboard</h2>
-    <p>Dashboard funcionando con React Router</p>
+    <div
+      style={{
+        padding: "15px",
+        backgroundColor: firebaseError ? "#ffe6e6" : "#e6ffe6",
+        border: `1px solid ${firebaseError ? "#ff0000" : "#00ff00"}`,
+        borderRadius: "4px",
+        marginTop: "10px",
+      }}
+    >
+      <strong>Estado Firebase:</strong> {firebaseStatus}
+      {firebaseError && (
+        <div style={{ marginTop: "10px", color: "#cc0000" }}>
+          <strong>Error:</strong> {firebaseError}
+        </div>
+      )}
+    </div>
   </div>
 );
 
@@ -30,7 +61,7 @@ const Users = () => (
 );
 
 function App() {
-  console.log("Admin App con Router iniciando...");
+  console.log("Admin App con Firebase iniciando...");
 
   return (
     <Router>
@@ -52,7 +83,7 @@ function App() {
           }}
         >
           <h1>🛠️ Panel de Administración - Alquilalo</h1>
-          <p>Versión con React Router</p>
+          <p>Versión con Firebase (testing)</p>
         </header>
 
         <nav
@@ -108,12 +139,6 @@ function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
-
-        <footer
-          style={{ marginTop: "20px", textAlign: "center", color: "#666" }}
-        >
-          ✅ React Router funcionando correctamente
-        </footer>
       </div>
     </Router>
   );
