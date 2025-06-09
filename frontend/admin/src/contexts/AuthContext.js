@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../config/firebase';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { auth } from "../config/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
-} from 'firebase/auth';
+} from "firebase/auth";
 
 const AuthContext = createContext(null);
 
@@ -49,11 +49,27 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     resetPassword,
+    loading,
   };
 
+  // CAMBIO CRÍTICO: Siempre renderizar children, no condicionalmente
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+            fontSize: "18px",
+          }}
+        >
+          Cargando autenticación...
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
