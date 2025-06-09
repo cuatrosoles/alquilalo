@@ -11,7 +11,7 @@ export const PrivateRoute = ({ children }) => {
   useEffect(() => {
     const check = async () => {
       if (currentUser) {
-        const isAdmin = await checkAdmin();
+        const isAdmin = await useAdminCheck();
         setIsAdmin(isAdmin);
       }
       setLoading(false);
