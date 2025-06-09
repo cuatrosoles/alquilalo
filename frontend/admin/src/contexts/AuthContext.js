@@ -11,7 +11,11 @@ import {
 const AuthContext = createContext(null);
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }
 
 export function AuthProvider({ children }) {
@@ -35,12 +39,30 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-    });
+    let isMounted = true;
 
-    return unsubscribe;
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (isMounted) {
+          console.log("Auth state changed:", user ? user.email : "No user");
+          setCurrentUser(user);
+          setLoading(false);
+        }
+      },
+      (error) => {
+        console.error("Auth error:", error);
+        if (isMounted) {
+          setCurrentUser(null);
+          setLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const value = {
@@ -52,7 +74,7 @@ export function AuthProvider({ children }) {
     loading,
   };
 
-  // CAMBIO CRÍTICO: Siempre renderizar children, no condicionalmente
+  // CRÍTICO: Siempre renderizar children, pero mostrar loading si es necesario
   return (
     <AuthContext.Provider value={value}>
       {loading ? (
@@ -63,9 +85,10 @@ export function AuthProvider({ children }) {
             alignItems: "center",
             minHeight: "100vh",
             fontSize: "18px",
+            backgroundColor: "#f8f9fa",
           }}
         >
-          Cargando autenticación...
+          🔄 Cargando autenticación...
         </div>
       ) : (
         children
