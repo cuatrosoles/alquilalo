@@ -6,54 +6,72 @@ import {
   Link,
   Navigate,
 } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 
-// Intentar importar AuthContext
-let authContextStatus = "No inicializado";
-let authContextError = null;
-let AuthProvider = null;
+// Intentar importar PrivateRoute
+let privateRouteStatus = "No inicializado";
+let privateRouteError = null;
+let PrivateRoute = null;
 
 try {
-  const authImport = require("./contexts/AuthContext");
-  AuthProvider = authImport.AuthProvider;
-  authContextStatus = "✅ AuthContext importado correctamente";
-  console.log("AuthContext importado correctamente");
+  const privateRouteImport = require("./components/PrivateRoute");
+  PrivateRoute = privateRouteImport.default;
+  privateRouteStatus = "✅ PrivateRoute importado correctamente";
+  console.log("PrivateRoute importado correctamente");
 } catch (error) {
-  authContextStatus = "❌ Error al importar AuthContext";
-  authContextError = error.message;
-  console.error("Error AuthContext:", error);
+  privateRouteStatus = "❌ Error al importar PrivateRoute";
+  privateRouteError = error.message;
+  console.error("Error PrivateRoute:", error);
 }
 
-// Componente que muestra el estado (SIN USAR HOOKS)
-const AuthStatus = () => (
-  <div
-    style={{
-      padding: "15px",
-      backgroundColor: authContextError ? "#ffe6e6" : "#e6f3ff",
-      border: `1px solid ${authContextError ? "#ff0000" : "#0066cc"}`,
-      borderRadius: "4px",
-      marginTop: "10px",
-    }}
-  >
-    <strong>Estado AuthContext:</strong> {authContextStatus}
-    {authContextError && (
-      <div style={{ marginTop: "10px", color: "#cc0000" }}>
-        <strong>Error:</strong> {authContextError}
+// Componente protegido simple para testing
+const ProtectedComponent = () => (
+  <div style={{ padding: "20px" }}>
+    <h2>🔒 Componente Protegido</h2>
+    <p>Si ves esto, PrivateRoute está funcionando</p>
+  </div>
+);
+
+// Componente que muestra el estado
+const StatusInfo = () => (
+  <div style={{ padding: "20px" }}>
+    <h2>📊 Dashboard</h2>
+
+    <div
+      style={{
+        padding: "15px",
+        backgroundColor: "#e6f3ff",
+        border: "1px solid #0066cc",
+        borderRadius: "4px",
+        marginTop: "10px",
+      }}
+    >
+      <strong>Estado AuthContext:</strong> ✅ Funcionando
+    </div>
+
+    <div
+      style={{
+        padding: "15px",
+        backgroundColor: privateRouteError ? "#ffe6e6" : "#e6f3ff",
+        border: `1px solid ${privateRouteError ? "#ff0000" : "#0066cc"}`,
+        borderRadius: "4px",
+        marginTop: "10px",
+      }}
+    >
+      <strong>Estado PrivateRoute:</strong> {privateRouteStatus}
+      {privateRouteError && (
+        <div style={{ marginTop: "10px", color: "#cc0000" }}>
+          <strong>Error:</strong> {privateRouteError}
+        </div>
+      )}
+      <div style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
+        PrivateRoute disponible: {PrivateRoute ? "Sí" : "No"}
       </div>
-    )}
-    <div style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
-      AuthProvider disponible: {AuthProvider ? "Sí" : "No"}
     </div>
   </div>
 );
 
 // Componentes simples
-const Dashboard = () => (
-  <div style={{ padding: "20px" }}>
-    <h2>📊 Dashboard</h2>
-    <AuthStatus />
-  </div>
-);
-
 const Items = () => (
   <div style={{ padding: "20px" }}>
     <h2>📦 Gestión de Items</h2>
@@ -72,7 +90,24 @@ const Users = () => (
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
-    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/dashboard" element={<StatusInfo />} />
+
+    {/* Ruta con PrivateRoute si está disponible */}
+    <Route
+      path="/protected"
+      element={
+        PrivateRoute ? (
+          <PrivateRoute>
+            <ProtectedComponent />
+          </PrivateRoute>
+        ) : (
+          <div style={{ padding: "20px" }}>
+            <p>PrivateRoute no disponible</p>
+          </div>
+        )
+      }
+    />
+
     <Route path="/items" element={<Items />} />
     <Route path="/users" element={<Users />} />
     <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -80,88 +115,93 @@ const AppRoutes = () => (
 );
 
 function App() {
-  console.log("Admin App con AuthContext iniciando...");
+  console.log("Admin App con PrivateRoute iniciando...");
 
-  const content = (
-    <Router>
-      <div
-        style={{
-          padding: "20px",
-          fontFamily: "Arial, sans-serif",
-          minHeight: "100vh",
-          backgroundColor: "#f8f9fa",
-        }}
-      >
-        <header
+  return (
+    <AuthProvider>
+      <Router>
+        <div
           style={{
-            backgroundColor: "#007bff",
-            color: "white",
             padding: "20px",
-            borderRadius: "8px",
-            marginBottom: "20px",
+            fontFamily: "Arial, sans-serif",
+            minHeight: "100vh",
+            backgroundColor: "#f8f9fa",
           }}
         >
-          <h1>🛠️ Panel de Administración - Alquilalo</h1>
-          <p>Versión con AuthContext (sin hooks condicionales)</p>
-        </header>
-
-        <nav
-          style={{
-            backgroundColor: "white",
-            padding: "15px",
-            borderRadius: "8px",
-            marginBottom: "20px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          }}
-        >
-          <Link
-            to="/dashboard"
+          <header
             style={{
-              marginRight: "20px",
-              textDecoration: "none",
-              color: "#007bff",
+              backgroundColor: "#007bff",
+              color: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              marginBottom: "20px",
             }}
           >
-            Dashboard
-          </Link>
-          <Link
-            to="/items"
+            <h1>🛠️ Panel de Administración - Alquilalo</h1>
+            <p>Versión con PrivateRoute (testing)</p>
+          </header>
+
+          <nav
             style={{
-              marginRight: "20px",
-              textDecoration: "none",
-              color: "#007bff",
+              backgroundColor: "white",
+              padding: "15px",
+              borderRadius: "8px",
+              marginBottom: "20px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
           >
-            Items
-          </Link>
-          <Link
-            to="/users"
-            style={{ textDecoration: "none", color: "#007bff" }}
-          >
-            Usuarios
-          </Link>
-        </nav>
+            <Link
+              to="/dashboard"
+              style={{
+                marginRight: "20px",
+                textDecoration: "none",
+                color: "#007bff",
+              }}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/protected"
+              style={{
+                marginRight: "20px",
+                textDecoration: "none",
+                color: "#007bff",
+              }}
+            >
+              Protegido
+            </Link>
+            <Link
+              to="/items"
+              style={{
+                marginRight: "20px",
+                textDecoration: "none",
+                color: "#007bff",
+              }}
+            >
+              Items
+            </Link>
+            <Link
+              to="/users"
+              style={{ textDecoration: "none", color: "#007bff" }}
+            >
+              Usuarios
+            </Link>
+          </nav>
 
-        <main
-          style={{
-            backgroundColor: "white",
-            borderRadius: "8px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-            minHeight: "400px",
-          }}
-        >
-          <AppRoutes />
-        </main>
-      </div>
-    </Router>
+          <main
+            style={{
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              minHeight: "400px",
+            }}
+          >
+            <AppRoutes />
+          </main>
+        </div>
+      </Router>
+    </AuthProvider>
   );
-
-  // Si AuthProvider está disponible, usarlo; si no, mostrar contenido directamente
-  if (AuthProvider) {
-    return <AuthProvider>{content}</AuthProvider>;
-  } else {
-    return content;
-  }
 }
 
 export default App;
