@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { checkAdmin } from '../utils/checkAdmin';
+import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useAdminCheck } from "../hooks/useAdminCheck";
 
 export const PrivateRoute = ({ children }) => {
   const { currentUser } = useAuth();
