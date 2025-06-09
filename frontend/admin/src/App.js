@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,42 +7,68 @@ import {
   Navigate,
 } from "react-router-dom";
 
-// Import Firebase básico
-let firebaseStatus = "No inicializado";
-let firebaseError = null;
+// Importar AuthContext
+let authContextStatus = "No inicializado";
+let authContextError = null;
+let AuthProvider = null;
+let useAuth = null;
 
 try {
-  // Intentar importar Firebase
-  const { auth } = require("./config/firebase");
-  firebaseStatus = "✅ Firebase importado correctamente";
-
-  console.log("Firebase auth:", auth);
+  const authImport = require("./contexts/AuthContext");
+  AuthProvider = authImport.AuthProvider;
+  useAuth = authImport.useAuth;
+  authContextStatus = "✅ AuthContext importado correctamente";
+  console.log("AuthContext importado:", { AuthProvider, useAuth });
 } catch (error) {
-  firebaseStatus = "❌ Error al importar Firebase";
-  firebaseError = error.message;
-  console.error("Error Firebase:", error);
+  authContextStatus = "❌ Error al importar AuthContext";
+  authContextError = error.message;
+  console.error("Error AuthContext:", error);
 }
+
+// Componente que usa AuthContext
+const AuthStatus = () => {
+  let authInfo = "AuthContext no disponible";
+  let authError = null;
+
+  try {
+    if (useAuth) {
+      const { currentUser, loading } = useAuth();
+      authInfo = `Usuario: ${
+        currentUser ? currentUser.email : "No autenticado"
+      } | Loading: ${loading}`;
+    }
+  } catch (error) {
+    authError = error.message;
+    authInfo = "Error al usar AuthContext";
+  }
+
+  return (
+    <div
+      style={{
+        padding: "15px",
+        backgroundColor: authError ? "#ffe6e6" : "#e6f3ff",
+        border: `1px solid ${authError ? "#ff0000" : "#0066cc"}`,
+        borderRadius: "4px",
+        marginTop: "10px",
+      }}
+    >
+      <strong>Estado AuthContext:</strong> {authContextStatus}
+      <br />
+      <strong>Info Auth:</strong> {authInfo}
+      {authError && (
+        <div style={{ marginTop: "10px", color: "#cc0000" }}>
+          <strong>Error useAuth:</strong> {authError}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Componentes simples
 const Dashboard = () => (
   <div style={{ padding: "20px" }}>
     <h2>📊 Dashboard</h2>
-    <div
-      style={{
-        padding: "15px",
-        backgroundColor: firebaseError ? "#ffe6e6" : "#e6ffe6",
-        border: `1px solid ${firebaseError ? "#ff0000" : "#00ff00"}`,
-        borderRadius: "4px",
-        marginTop: "10px",
-      }}
-    >
-      <strong>Estado Firebase:</strong> {firebaseStatus}
-      {firebaseError && (
-        <div style={{ marginTop: "10px", color: "#cc0000" }}>
-          <strong>Error:</strong> {firebaseError}
-        </div>
-      )}
-    </div>
+    <AuthStatus />
   </div>
 );
 
@@ -60,10 +86,21 @@ const Users = () => (
   </div>
 );
 
-function App() {
-  console.log("Admin App con Firebase iniciando...");
+// Componente de rutas
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/items" element={<Items />} />
+    <Route path="/users" element={<Users />} />
+    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+  </Routes>
+);
 
-  return (
+function App() {
+  console.log("Admin App con AuthContext iniciando...");
+
+  const content = (
     <Router>
       <div
         style={{
@@ -83,7 +120,7 @@ function App() {
           }}
         >
           <h1>🛠️ Panel de Administración - Alquilalo</h1>
-          <p>Versión con Firebase (testing)</p>
+          <p>Versión con AuthContext (testing)</p>
         </header>
 
         <nav
@@ -131,17 +168,18 @@ function App() {
             minHeight: "400px",
           }}
         >
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/items" element={<Items />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+          <AppRoutes />
         </main>
       </div>
     </Router>
   );
+
+  // Si AuthProvider está disponible, usarlo; si no, mostrar contenido directamente
+  if (AuthProvider) {
+    return <AuthProvider>{content}</AuthProvider>;
+  } else {
+    return content;
+  }
 }
 
 export default App;
