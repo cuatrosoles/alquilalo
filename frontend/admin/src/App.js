@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,62 +7,44 @@ import {
   Navigate,
 } from "react-router-dom";
 
-// Importar AuthContext
+// Intentar importar AuthContext
 let authContextStatus = "No inicializado";
 let authContextError = null;
 let AuthProvider = null;
-let useAuth = null;
 
 try {
   const authImport = require("./contexts/AuthContext");
   AuthProvider = authImport.AuthProvider;
-  useAuth = authImport.useAuth;
   authContextStatus = "✅ AuthContext importado correctamente";
-  console.log("AuthContext importado:", { AuthProvider, useAuth });
+  console.log("AuthContext importado correctamente");
 } catch (error) {
   authContextStatus = "❌ Error al importar AuthContext";
   authContextError = error.message;
   console.error("Error AuthContext:", error);
 }
 
-// Componente que usa AuthContext
-const AuthStatus = () => {
-  let authInfo = "AuthContext no disponible";
-  let authError = null;
-
-  try {
-    if (useAuth) {
-      const { currentUser, loading } = useAuth();
-      authInfo = `Usuario: ${
-        currentUser ? currentUser.email : "No autenticado"
-      } | Loading: ${loading}`;
-    }
-  } catch (error) {
-    authError = error.message;
-    authInfo = "Error al usar AuthContext";
-  }
-
-  return (
-    <div
-      style={{
-        padding: "15px",
-        backgroundColor: authError ? "#ffe6e6" : "#e6f3ff",
-        border: `1px solid ${authError ? "#ff0000" : "#0066cc"}`,
-        borderRadius: "4px",
-        marginTop: "10px",
-      }}
-    >
-      <strong>Estado AuthContext:</strong> {authContextStatus}
-      <br />
-      <strong>Info Auth:</strong> {authInfo}
-      {authError && (
-        <div style={{ marginTop: "10px", color: "#cc0000" }}>
-          <strong>Error useAuth:</strong> {authError}
-        </div>
-      )}
+// Componente que muestra el estado (SIN USAR HOOKS)
+const AuthStatus = () => (
+  <div
+    style={{
+      padding: "15px",
+      backgroundColor: authContextError ? "#ffe6e6" : "#e6f3ff",
+      border: `1px solid ${authContextError ? "#ff0000" : "#0066cc"}`,
+      borderRadius: "4px",
+      marginTop: "10px",
+    }}
+  >
+    <strong>Estado AuthContext:</strong> {authContextStatus}
+    {authContextError && (
+      <div style={{ marginTop: "10px", color: "#cc0000" }}>
+        <strong>Error:</strong> {authContextError}
+      </div>
+    )}
+    <div style={{ marginTop: "10px", fontSize: "12px", color: "#666" }}>
+      AuthProvider disponible: {AuthProvider ? "Sí" : "No"}
     </div>
-  );
-};
+  </div>
+);
 
 // Componentes simples
 const Dashboard = () => (
@@ -120,7 +102,7 @@ function App() {
           }}
         >
           <h1>🛠️ Panel de Administración - Alquilalo</h1>
-          <p>Versión con AuthContext (testing)</p>
+          <p>Versión con AuthContext (sin hooks condicionales)</p>
         </header>
 
         <nav
