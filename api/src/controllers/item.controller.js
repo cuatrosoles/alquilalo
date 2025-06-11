@@ -143,16 +143,35 @@ const updateItemAvailability = async (itemId, status, startDate, endDate) => {
 const searchItemsHandler = async (req, res) => {
   try {
     const { search, categoryId, location } = req.query;
+
+    // Validar que al menos haya un criterio de búsqueda
+    if (!search && !categoryId && !location) {
+      return res.status(400).json({
+        message:
+          "Se requiere al menos un criterio de búsqueda (término, categoría o ubicación)",
+      });
+    }
+
     const items = await itemService.searchItems({
       search,
       categoryId,
       location,
     });
+
+    if (items.length === 0) {
+      return res.status(200).json({
+        message:
+          "No se encontraron artículos que coincidan con los criterios de búsqueda",
+        items: [],
+      });
+    }
+
     res.json(items);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: error.message || "Error al buscar los artículos" });
+    console.error("Error en searchItemsHandler:", error);
+    res.status(500).json({
+      message: error.message || "Error al buscar los artículos",
+    });
   }
 };
 

@@ -1,0 +1,150 @@
+[
+  {
+    "Document ID": "03mHNfKbAHcY37qcWIuY",
+    "availability": "{days: {friday: {enabled: true, s...}, blockedDates: [{startDate: \"2025-05-16\",...]}",
+    "categoryId": "V8Hby0HUENPzk6qckwYz",
+    "createdAt": "12 de mayo de 2025, 1:05:31 p.m. UTC-3",
+    "description": "BLACK+DECKER Mini Amoladora Angular, Diámetro de Disco 115 mm, Potencia 710 W, Velocidad 12.000 RPM, Mango Ajustable 2 Posiciones y Protección de Re-Arranque, BEG010-QS",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747065925692_81M6s7FW1uL.__AC_SX300_SY300_QL70_ML2_.jpg?alt=media&token=816fe996-ec13-4c68-bb64-1605e24a51a3",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747065927233_81O3LYbNeZL._AC_SL1500_.jpg?alt=media&token=b973ce53-4f18-4c12-bb33-301d50d31b94",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747065929506_91nYeRCkluL._AC_SX569_.jpg?alt=media&token=285608f3-fc23-43d9-9b2e-2794bb4a87bf",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747065930464_616nuKKvggL._AC_SX569_.jpg?alt=media&token=1e2e2641-596f-44e0-9c0d-c4927d7aa9e0"
+    ],
+    "location": "{latitude: -33.8909969, address: {zip: \"\", country: \"Argent...}, longitude: -60.58911060000001}",
+    "mainImageIndex": 0,
+    "pricePerDay": 12000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "BLACK+DECKER Mini Amoladora Angular, Diámetro de Disco 115 mm",
+    "userId": "Eo4wVCnEklawygYDyyEdVLsmWtG2"
+  },
+  {
+    "Document ID": "A3JQMH7rNjDTC4Ag0zOR",
+    "availability": true,
+    "categoryId": "ojnlNUQPhGlSWKALIUD8",
+    "createdAt": "11 de mayo de 2025, 5:28:31 p.m. UTC-3",
+    "description": "Vestido de Mujer de Midaxi con Cuello En V, Manga Corta, para Dama de Honor",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746995305353_61BzSMnlbkL._AC_SX679_.jpg?alt=media&token=e2950e6e-3ee0-405f-9692-0a81c5cf69c3",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746995307200_61kiGeWZcoL._AC_SX679_.jpg?alt=media&token=755059e6-bcf4-4d29-bf30-c766a7264980",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746995307818_61W32pDIbWL._AC_SX679_.jpg?alt=media&token=fcf6f93b-b110-4be9-8847-0551ac87c5a5",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746995308599_71HDWmNPP5L._AC_SX679_.jpg?alt=media&token=20f6ac51-db69-4920-a48d-957b8016a1f0",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746995309274_619JJeGFIyL._AC_SX679_.jpg?alt=media&token=24654d83-7155-4058-a426-f6d97e90e81b"
+    ],
+    "location": "{longitude: null, address: {street: \"Somoza 400\", cit...}, latitude: null}",
+    "mainImageIndex": 0,
+    "pricePerDay": 80000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "Vestido de Mujer de Midaxi con Cuello En V",
+    "userId": "Eo4wVCnEklawygYDyyEdVLsmWtG2"
+  },
+  {
+    "Document ID": "DdA4nrIoNGex0UpJF1F4",
+    "availability": "{days: {tuesday: {slots: [{start:...}}",
+    "categoryId": "YU3eXVavfCmqei4Fl3Gv",
+    "createdAt": "12 de mayo de 2025, 12:14:25 a.m. UTC-3",
+    "description": "Gaming Laptop, 15.6-Inch Portátil, Win11pro, Procesador R5-7430U,16 RAM+1TB SSD, FHD 1920 * 1080 Ordenador Portátil, Desbloqueo por Huella Dactilar, Teclado retroiluminado, Cierre 180°, BT5.0",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747019655351_71It5qpptXL._AC_SX679_.jpg?alt=media&token=3685f230-30aa-4530-839f-15efda922e98",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747019657555_71Ib3_xoOGL._AC_SX679_.jpg?alt=media&token=743f63be-b13c-45c7-8608-1d257e10f756",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747019659514_71pDradv9lL._AC_SX679_.jpg?alt=media&token=33cddf82-d1a4-43b4-aecb-a86ebe60e7b7",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747019661534_81qVceY27pL._AC_SX679_.jpg?alt=media&token=ebdef217-eefa-44b4-bf9f-28437c0902d5",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747019663083_813uC8MPXKL._AC_SX679_.jpg?alt=media&token=1cb70561-7e75-4d99-a11c-0f7ac185002a"
+    ],
+    "location": "{address: {zip: \"B2700\", city: \"Perg...}, longitude: -60.5757176, latitude: -33.88615120000001}",
+    "mainImageIndex": 0,
+    "pricePerDay": 45000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "Gaming Laptop, 15.6-Inch Portátil, Win11pro",
+    "userId": "Eo4wVCnEklawygYDyyEdVLsmWtG2"
+  },
+  {
+    "Document ID": "TBZWc9I4Baerldp8KgdV",
+    "availability": true,
+    "categoryId": "xuRAQ8qgS3SwBsHgFKov",
+    "createdAt": "11 de mayo de 2025, 4:58:44 p.m. UTC-3",
+    "description": "Cámara Digital 1080P Cámara de Fotos HD 44MP Cámara Digital Compacta con Pantalla LCD de 2,4 Pulgadas, Zoom Digital 16X, Tarjeta de Memoria Micro de 32G, 1 Batería para Niños, Adolescentes - Violet",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993517686_71fpRSVUpBL._AC_SX679_.jpg?alt=media&token=a5d58ba7-94a5-4870-b583-111e4ac16ff4",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993519504_71nFfbMzlCL._AC_SX679_.jpg?alt=media&token=b6fccafe-3bac-4881-b4b4-3526d57aa693",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993521417_71TvJngj9JL._AC_SX679_.jpg?alt=media&token=f8e5b52e-de5b-4cde-9548-d2798cdf0f2b",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993522535_81JPJzkaTaL._AC_SX679_.jpg?alt=media&token=d7d97c84-35b8-49c1-8152-533285d0f11c"
+    ],
+    "location": "{latitude: -33.87983910000001, address: {street: \"Siria 1200\", cit...}, longitude: -60.5665942}",
+    "mainImageIndex": 0,
+    "pricePerDay": 18000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "Cámara Digital 1080P Cámara de Fotos HD 44MP",
+    "userId": "oTFAUbUjSrTh6N6I46DNjj2XhEH3"
+  },
+  {
+    "Document ID": "TzPYwIBIKee3M97gzqBC",
+    "availability": true,
+    "categoryId": "xuRAQ8qgS3SwBsHgFKov",
+    "createdAt": "11 de mayo de 2025, 5:01:25 p.m. UTC-3",
+    "description": "Nikon D3300 - Cámara réflex digital de 24.2 Mp (pantalla de 3\", estabilizador de imagen, zoom óptico de 5.8x, grabación de vídeo Full HD), negro – kit con objetivo AF-S DX 18-105 mm VR [Versión EU]",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993683617_71o8g63tg1L._AC_SX679_.jpg?alt=media&token=a354f8f2-065a-42bb-9011-550fe21c029b",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993684400_71U4P7DNhOL._AC_SX679_.jpg?alt=media&token=09cebf7f-abfc-4731-be96-92d6b0855b1e",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746993685145_716LwlDPiqL._AC_SX679_.jpg?alt=media&token=0c56b77c-1e2f-4719-8e5c-9ce6e175025f"
+    ],
+    "location": "{longitude: -60.5743619, address: {street: \"René Favaloro 20...}, latitude: -33.8702459}",
+    "mainImageIndex": 0,
+    "pricePerDay": 45000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "Nikon D3300 - Cámara réflex digital de 24.2 Mp",
+    "userId": "oTFAUbUjSrTh6N6I46DNjj2XhEH3"
+  },
+  {
+    "Document ID": "ebeK5ma9lqjw5Vez0Qor",
+    "availability": true,
+    "categoryId": "YU3eXVavfCmqei4Fl3Gv",
+    "createdAt": "11 de mayo de 2025, 7:14:04 p.m. UTC-3",
+    "description": "ACEMAGIC 2025 Ordenador Portátil 15,6 Pulgadas Nuevo Procesador lntel Alder Lake N150 DDR4 2666MHz-3200MHz,16 GB RAM 512 GB SSD Expandir 2 TB,USB3.2,WiFi,HDMI,Cuerpo metálico",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747001638532_71pPTeOClRL._AC_SX679_.jpg?alt=media&token=772b0638-766a-43df-a997-644613d95c38",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747001640254_71d9emilx4L._AC_SX679_.jpg?alt=media&token=94edb0e6-15f9-422a-8197-e9c27f2dd64b",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747001641181_71i59x76J4L._AC_SX679_.jpg?alt=media&token=76ca8b78-3ab5-475b-9791-6c64cfc330fa",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1747001642359_818vcxOdUbL._AC_SX679_.jpg?alt=media&token=f6955936-189c-464f-96bd-af4b8b330787"
+    ],
+    "location": "{longitude: -60.5743619, address: {zip: \"\", city: \"Pergamino...}, latitude: -33.8702459}",
+    "mainImageIndex": 0,
+    "pricePerDay": 25000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "ACEMAGIC 2025 Ordenador Portátil 15,6 Pulgadas",
+    "userId": "Eo4wVCnEklawygYDyyEdVLsmWtG2"
+  },
+  {
+    "Document ID": "vuMT9uy6Gi1aHUOKmnim",
+    "availability": true,
+    "categoryId": "YU3eXVavfCmqei4Fl3Gv",
+    "createdAt": "11 de mayo de 2025, 5:07:06 p.m. UTC-3",
+    "description": "Sistema de micrófono inalámbrico con 4 micrófonos inalámbricos Cuatro micrófonos de mano, set de micrófonos inalámbricos para canto, conferencias, presentaciones, webcasts, karaoke, casa, KTV",
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746994021145_41_ZeWZXrBL._AC_UF1000_1000_QL80_.jpg?alt=media&token=f09a9389-7dbb-459d-8ba2-76cc7cdf0ee5",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746994022464_61gYlp5nRuL._AC_SX679_.jpg?alt=media&token=da647316-33e1-43b2-ba0e-774236635395",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746994023499_61WHppP_9RL._AC_SX679_.jpg?alt=media&token=9145cc5c-f99b-4af5-8416-c7bf0b879e19",
+      "https://firebasestorage.googleapis.com/v0/b/multirent-918e4.firebasestorage.app/o/items%2F1746994025085_71RudC3TBIL._AC_SX679_.jpg?alt=media&token=9bd6bd6e-0a97-43c2-bf2f-8e0e52cd4a38"
+    ],
+    "location": "{latitude: -33.87983910000001, address: {province: \"Provincia de B...}, longitude: -60.5665942}",
+    "mainImageIndex": 0,
+    "pricePerDay": 12000,
+    "pricePerHour": null,
+    "priceType": "daily",
+    "status": "active",
+    "title": "Sistema de micrófono inalámbrico con 4 micrófonos",
+    "userId": "oTFAUbUjSrTh6N6I46DNjj2XhEH3"
+  }
+]

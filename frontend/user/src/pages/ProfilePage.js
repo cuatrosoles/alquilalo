@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { auth, db } from '../config/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { updateProfile } from 'firebase/auth';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, db } from "../config/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -12,16 +10,16 @@ function ProfilePage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [userData, setUserData] = useState({
-    displayName: '',
-    phone: '',
-    address: '',
-    city: '',
-    country: '',
+    displayName: "",
+    phone: "",
+    address: "",
+    city: "",
+    country: "",
     emailPreferences: {
       rentalUpdates: true,
       marketingEmails: false,
-      securityAlerts: true
-    }
+      securityAlerts: true,
+    },
   });
 
   useEffect(() => {
@@ -29,28 +27,28 @@ function ProfilePage() {
       try {
         const user = auth.currentUser;
         if (!user) {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const userDocData = userDoc.data();
           // Only update if there are actual changes to prevent unnecessary re-renders
-          setUserData(prev => ({
+          setUserData((prev) => ({
             ...prev,
             ...userDocData,
             displayName: user.displayName || prev.displayName,
             // Preserve emailPreferences if not in the document
             emailPreferences: {
               ...prev.emailPreferences,
-              ...(userDocData.emailPreferences || {})
-            }
+              ...(userDocData.emailPreferences || {}),
+            },
           }));
         }
       } catch (error) {
-        setError('Error al cargar los datos del usuario');
-        console.error('Error:', error);
+        setError("Error al cargar los datos del usuario");
+        console.error("Error:", error);
       } finally {
         setLoading(false);
       }
@@ -61,19 +59,19 @@ function ProfilePage() {
 
   const handleInputChange = (e) => {
     const { name, value, checked } = e.target;
-    if (name.startsWith('emailPreferences.')) {
-      const preference = name.split('.')[1];
-      setUserData(prev => ({
+    if (name.startsWith("emailPreferences.")) {
+      const preference = name.split(".")[1];
+      setUserData((prev) => ({
         ...prev,
         emailPreferences: {
           ...prev.emailPreferences,
-          [preference]: checked
-        }
+          [preference]: checked,
+        },
       }));
     } else {
-      setUserData(prev => ({
+      setUserData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -87,29 +85,29 @@ function ProfilePage() {
     try {
       const user = auth.currentUser;
       if (!user) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
       // Actualizar perfil en Firebase Auth
       await updateProfile(user, {
-        displayName: userData.displayName
+        displayName: userData.displayName,
       });
 
       // Actualizar datos en Firestore
-      await updateDoc(doc(db, 'users', user.uid), {
+      await updateDoc(doc(db, "users", user.uid), {
         displayName: userData.displayName,
         phone: userData.phone,
         address: userData.address,
         city: userData.city,
         country: userData.country,
-        emailPreferences: userData.emailPreferences
+        emailPreferences: userData.emailPreferences,
       });
 
-      setSuccess('Perfil actualizado correctamente');
+      setSuccess("Perfil actualizado correctamente");
     } catch (error) {
-      setError('Error al actualizar el perfil');
-      console.error('Error:', error);
+      setError("Error al actualizar el perfil");
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -125,28 +123,32 @@ function ProfilePage() {
 
   return (
     <div className="bg-[#F5F7FA] min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-[#009688] mb-8">Mi Perfil</h1>
-          
+
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
-          
+
           {success && (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
               {success}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-2xl shadow-lg p-8"
+          >
             <div className="space-y-6">
               {/* Información Personal */}
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Información Personal</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Información Personal
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -214,7 +216,9 @@ function ProfilePage() {
 
               {/* Preferencias de Correo */}
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Preferencias de Correo</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Preferencias de Correo
+                </h2>
                 <div className="space-y-4">
                   <div className="flex items-center">
                     <input
@@ -261,16 +265,15 @@ function ProfilePage() {
                   className="bg-[#009688] text-white px-6 py-2 rounded-lg hover:bg-[#00796B] transition-colors"
                   disabled={loading}
                 >
-                  {loading ? 'Guardando...' : 'Guardar Cambios'}
+                  {loading ? "Guardando..." : "Guardar Cambios"}
                 </button>
               </div>
             </div>
           </form>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
 
-export default ProfilePage; 
+export default ProfilePage;

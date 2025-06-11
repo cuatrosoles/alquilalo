@@ -1,0 +1,51 @@
+[
+  {
+    "Document ID": "Eo4wVCnEklawygYDyyEdVLsmWtG2",
+    "address": 0,
+    "city": 0,
+    "country": 0,
+    "createdAt": "8 de mayo de 2025, 7:22:53 p.m. UTC-3",
+    "displayName": 0,
+    "email": "usuario1@email.com",
+    "emailPreferences": 0,
+    "name": "UsuarioUno",
+    "phone": 0,
+    "role": 0,
+    "uid": "Eo4wVCnEklawygYDyyEdVLsmWtG2",
+    "updatedAt": "8 de mayo de 2025, 7:22:53 p.m. UTC-3"
+  },
+  {
+    "Document ID": "MMlYxVw0eIY78HGSyg4YAv2uUAR2",
+    "address": 0,
+    "city": 0,
+    "country": 0,
+    "createdAt": "19 de mayo de 2025, 9:01:43 p.m. UTC-3",
+    "displayName": 0,
+    "email": "admin@alquilalo.com",
+    "emailPreferences": 0,
+    "name": "Administrador",
+    "phone": 0,
+    "role": "admin",
+    "uid": "MMlYxVw0eIY78HGSyg4YAv2uUAR2",
+    "updatedAt": "19 de mayo de 2025, 9:03:08 p.m. UTC-3"
+  },
+  {
+    "Document ID": "oTFAUbUjSrTh6N6I46DNjj2XhEH3",
+    "address": "Siria 1230",
+    "city": "Pergamino",
+    "country": "Argentina",
+    "createdAt": "8 de mayo de 2025, 5:03:20 p.m. UTC-3",
+    "displayName": "Juancito",
+    "email": "ubifon@gmail.com",
+    "emailPreferences": {
+      "securityAlerts": true,
+      "marketingEmails": true,
+      "rentalUpdates": true
+    },
+    "name": "Juancito",
+    "phone": "2477635499",
+    "role": 0,
+    "uid": "oTFAUbUjSrTh6N6I46DNjj2XhEH3",
+    "updatedAt": "8 de mayo de 2025, 5:03:20 p.m. UTC-3"
+  }
+]

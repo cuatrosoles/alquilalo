@@ -1,42 +1,43 @@
 // frontend/user/src/pages/LoginPage.js
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
+    setError("");
     try {
       await login(email, password);
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      setError(error.message || 'Credenciales inválidas');
+      setError(error.message || "Credenciales inválidas");
     }
   };
 
   return (
     <div className="bg-[#F5F7FA] min-h-screen flex flex-col">
-      <Header />
-
-      <div className="flex-grow flex items-left justify-left sm:px-18 py-12 lg:px-24 py-16 gap-8 bg-no-repeat bg-center bg-cover" style={{backgroundImage: 'url(/images/login-background.png)'}}>
-
+      <div
+        className="flex-grow flex items-left justify-left sm:px-18 py-12 lg:px-24 py-16 gap-8 bg-no-repeat bg-center bg-cover"
+        style={{ backgroundImage: "url(/images/login-background.png)" }}
+      >
         <div className="max-w-2xl w-full space-y-8 bg-white p-8 rounded-2xl shadow-lg">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Iniciar Sesión
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              ¿No tienes una cuenta?{' '}
-              <Link to="/register" className="font-medium text-[#009688] hover:text-[#00796B]">
+              ¿No tienes una cuenta?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-[#009688] hover:text-[#00796B]"
+              >
                 Regístrate aquí
               </Link>
             </p>
@@ -49,7 +50,10 @@ function LoginPage() {
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="rounded-md shadow-sm space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email
                 </label>
                 <input
@@ -64,7 +68,10 @@ function LoginPage() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Contraseña
                 </label>
                 <input
@@ -90,9 +97,7 @@ function LoginPage() {
             </div>
           </form>
         </div>
-
       </div>
-      <Footer />
     </div>
   );
 }

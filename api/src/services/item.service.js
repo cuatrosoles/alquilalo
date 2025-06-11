@@ -136,30 +136,26 @@ const uploadImages = async (files) => {
 const searchItems = async (filters = {}) => {
   try {
     let query = itemsCollection;
+    const snapshot = await query.get();
+    let items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-    // Filtrar por término de búsqueda (título o descripción)
+    // Aplicar todos los filtros
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      const snapshot = await query.get();
-      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      return items.filter(
+      items = items.filter(
         (item) =>
           item.title.toLowerCase().includes(searchTerm) ||
           item.description.toLowerCase().includes(searchTerm)
       );
     }
 
-    // Filtrar por categoría
     if (filters.categoryId) {
-      query = query.where("categoryId", "==", filters.categoryId);
+      items = items.filter((item) => item.categoryId === filters.categoryId);
     }
 
-    // Filtrar por ubicación
     if (filters.location) {
       const locationTerm = filters.location.toLowerCase();
-      const snapshot = await query.get();
-      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      return items.filter((item) => {
+      items = items.filter((item) => {
         const itemLocation = item.location?.address;
         if (!itemLocation) return false;
 
@@ -171,9 +167,7 @@ const searchItems = async (filters = {}) => {
       });
     }
 
-    // Si no hay filtros, devolver todos los items
-    const snapshot = await query.get();
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return items;
   } catch (error) {
     console.error("Error al buscar artículos:", error);
     throw error;

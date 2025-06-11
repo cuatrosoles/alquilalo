@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useLocation, Link } from "react-router-dom";
-import Pagination from "../components/Pagination";
-import { getCategories, calculateDistance } from "../services/api"; // --- Se importa la función de API ---
+import { Link } from "react-router-dom";
+import { getAllItems, getCategories, calculateDistance } from "../services/api";
+import Pagination from "../components/Pagination"; // --- Se importa el componente reutilizable ---
 
-// Componente para organizar el sidebar
+// Componente para organizar el sidebar, sin cambios.
 const FilterSection = ({ title, children }) => (
   <div className="py-6 border-b border-gray-200">
     <h3 className="font-semibold text-gray-800 mb-4">{title}</h3>
@@ -11,18 +11,18 @@ const FilterSection = ({ title, children }) => (
   </div>
 );
 
-function SearchResultsPage() {
-  const location = useLocation();
-  const { results: initialResults, filters: searchFilters } =
-    location.state || { results: [], filters: {} };
-
+function ItemsPage() {
   // --- Estados para la página ---
-  const [displayedResults, setDisplayedResults] = useState(initialResults);
+  const [allItems, setAllItems] = useState([]);
   const [categories, setCategories] = useState([]); // <-- NUEVO: Estado para las categorías
-  const [loading, setLoading] = useState(false); // No se necesita loading inicial, los datos ya vienen
+  const [displayedResults, setDisplayedResults] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [userLocation, setUserLocation] = useState(null);
+  const ITEMS_PER_PAGE = 6;
 
+  // Estado para los valores actuales de los filtros
   const [filters, setFilters] = useState({
     maxPrice: 100000,
     itemCondition: "all",
@@ -30,23 +30,6 @@ function SearchResultsPage() {
     sortBy: "relevance",
     maxDistance: 50, // Distancia máxima en km
   });
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 12;
-
-  // NUEVO: Efecto para cargar las categorías al montar el componente
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const cats = await getCategories();
-        setCategories(cats);
-      } catch (error) {
-        console.error("No se pudieron cargar las categorías para el filtro.");
-        setError("Error al cargar filtros de categoría.");
-      }
-    };
-    fetchCategories();
-  }, []);
 
   // Obtener ubicación del usuario al montar el componente
   useEffect(() => {
@@ -65,18 +48,48 @@ function SearchResultsPage() {
     }
   }, []);
 
+  // Efecto para cargar TODOS los items y categorías al montar la página
+  useEffect(() => {
+    const fetchPageData = async () => {
+      try {
+        setLoading(true);
+        // Hacemos ambas llamadas a la API en paralelo
+        const [itemsData, categoriesData] = await Promise.all([
+          getAllItems(),
+          getCategories(),
+        ]);
+        setAllItems(itemsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        setError(
+          "No se pudieron cargar los datos. Por favor, intenta de nuevo más tarde."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPageData();
+  }, []);
+
+  const availableCategories = useMemo(() => {
+    const cats = allItems.map((item) => item.categoryName || "Sin Categoría");
+    return ["all", ...new Set(cats)];
+  }, [allItems]);
+
   // Efecto para aplicar filtros y ordenamiento
   useEffect(() => {
-    let resultsToFilter = [...initialResults];
+    let resultsToFilter = [...allItems];
 
     resultsToFilter = resultsToFilter.filter((item) => {
       if (item.pricePerDay > filters.maxPrice) return false;
+      ///const itemCondition = item.isNew ? "new" : "used";
       const itemCondition = item.itemCondition ? item.itemCondition : "all";
       if (
         filters.itemCondition !== "all" &&
         itemCondition !== filters.itemCondition
       )
         return false;
+      // NUEVO: Lógica para filtrar por categoría
       if (filters.category !== "all" && item.categoryId !== filters.category)
         return false;
 
@@ -107,7 +120,7 @@ function SearchResultsPage() {
 
     setDisplayedResults(resultsToFilter);
     setCurrentPage(1);
-  }, [filters, initialResults, userLocation]);
+  }, [filters, allItems, userLocation]);
 
   const currentItemsOnPage = useMemo(() => {
     const firstItemIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -132,27 +145,29 @@ function SearchResultsPage() {
     });
   };
 
-  const formatLocation = (location) => {
-    if (!location || !location.address) return "Sin ubicación";
-    const { city, province } = location.address;
-    return [city, province].filter(Boolean).join(", ");
-  };
-
   const getCategoryName = (categoryId) => {
     const category = categories.find((cat) => cat.id === categoryId);
     return category ? category.name : "Sin Categoría";
   };
+
+  if (loading) {
+    return <div className="text-center py-20">Cargando artículos...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-20 text-red-500">{error}</div>;
+  }
 
   return (
     <div className="bg-white">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Resultados de Búsqueda
+            Todos los Artículos
           </h1>
           <p className="text-gray-600 mt-1">
-            {displayedResults.length} artículos encontrados
-            {searchFilters?.search && ` para "${searchFilters.search}"`}
+            Mostrando {currentItemsOnPage.length} de {displayedResults.length}{" "}
+            artículos encontrados.
           </p>
         </div>
 
@@ -160,6 +175,7 @@ function SearchResultsPage() {
           {/* --- Sidebar de Filtros --- */}
           <aside className="hidden lg:block bg-gray-50 p-6 rounded-lg self-start sticky top-24">
             <h2 className="text-xl font-bold mb-6">Filtros</h2>
+            {/* NUEVO: Filtro desplegable para Categorías */}
             <FilterSection title="Categoría">
               <select
                 name="category"
@@ -309,97 +325,78 @@ function SearchResultsPage() {
                 <option value="price_desc">Precio: más alto a más bajo</option>
               </select>
             </div>
-            {initialResults.length > 0 ? (
-              displayedResults.length > 0 ? (
-                <div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {currentItemsOnPage.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-white rounded-lg shadow-md overflow-hidden group"
-                      >
-                        <div className="relative">
-                          <img
-                            src={
-                              item.images[0] || "https://placehold.co/300x200"
-                            }
-                            alt={item.title}
-                            className="h-48 w-full object-cover"
-                          />
-                          <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                            {item.itemCondition === "excelent" && "Excelente"}
-                            {item.itemCondition === "good" && "Bueno"}
-                            {item.itemCondition === "fair" && "Regular"}
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-semibold text-lg text-gray-800 truncate group-hover:text-orange-600 transition">
-                            {item.title}
-                          </h3>
-                          <p className="text-gray-500 text-sm mt-1">
-                            {getCategoryName(item.categoryId)}
-                          </p>
-                          <p className="text-gray-500 text-sm mt-1">
-                            {formatLocation(item.location)}
-                          </p>
-                          <div className="mt-3 flex justify-between items-center">
-                            <p className="text-lg font-bold text-gray-900">
-                              $
-                              {item.priceType === "daily"
-                                ? item.pricePerDay
-                                : item.pricePerHour}
-                              <span className="text-sm font-normal text-gray-500">
-                                {item.priceType === "daily" ? "/día" : "/hora"}
-                              </span>
-                            </p>
-                            <Link
-                              to={`/item/${item.id}`}
-                              className="text-orange-500 font-semibold text-sm hover:text-orange-600"
-                            >
-                              Ver Detalles
-                            </Link>
-                          </div>
+            {displayedResults.length > 0 ? (
+              <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {currentItemsOnPage.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-lg shadow-md overflow-hidden group"
+                    >
+                      <div className="relative">
+                        <img
+                          src={
+                            item.images[0] || "https://picsum.photos/300/200"
+                          }
+                          alt={item.title}
+                          className="h-48 w-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          {item.itemCondition === "excelent" && "Excelente"}
+                          {item.itemCondition === "good" && "Bueno"}
+                          {item.itemCondition === "fair" && "Regular"}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  <Pagination
-                    totalItems={displayedResults.length}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                  />
+                      <div className="p-4">
+                        <h3 className="font-semibold text-lg text-gray-800 truncate group-hover:text-orange-600 transition">
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm mt-1">
+                          {getCategoryName(item.categoryId)}
+                        </p>
+                        <div className="mt-3 flex justify-between items-center">
+                          <p className="text-lg font-bold text-gray-900">
+                            $
+                            {item.priceType === "daily"
+                              ? item.pricePerDay
+                              : item.pricePerHour}
+                            <span className="text-sm font-normal text-gray-500">
+                              {item.priceType === "daily" ? "/día" : "/hora"}
+                            </span>
+                          </p>
+                          <Link
+                            to={`/item/${item.id}`}
+                            className="text-orange-500 font-semibold text-sm hover:text-orange-600"
+                          >
+                            Ver Detalles
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <div className="text-center py-20 bg-gray-50 rounded-lg">
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                    Ningún resultado coincide con los filtros
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Prueba a cambiar o limpiar los filtros.
-                  </p>
-                  <button
-                    onClick={resetFilters}
-                    className="bg-orange-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-orange-600 transition"
-                  >
-                    Limpiar Filtros
-                  </button>
-                </div>
-              )
+                {/* Se renderiza el componente importado */}
+                <Pagination
+                  totalItems={displayedResults.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
             ) : (
               <div className="text-center py-20 bg-gray-50 rounded-lg">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                  No se encontraron resultados
+                  Ningún artículo coincide con los filtros
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  Intenta con otros términos de búsqueda.
+                  Prueba a cambiar o limpiar los filtros.
                 </p>
-                <Link
-                  to="/"
+                <button
+                  onClick={resetFilters}
                   className="bg-orange-500 text-white font-semibold px-6 py-2 rounded-md hover:bg-orange-600 transition"
                 >
-                  Volver al inicio
-                </Link>
+                  Limpiar Filtros
+                </button>
               </div>
             )}
           </div>
@@ -409,4 +406,4 @@ function SearchResultsPage() {
   );
 }
 
-export default SearchResultsPage;
+export default ItemsPage;
