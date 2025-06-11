@@ -174,6 +174,17 @@ const searchItems = async (filters = {}) => {
   }
 };
 
+const getFeaturedItems = async () => {
+  try {
+    const snapshot = await itemsCollection.where("featured", "==", "si").get();
+    const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return items;
+  } catch (error) {
+    console.error("Error al obtener los artículos destacados:", error);
+    throw error;
+  }
+};
+
 export {
   createItem,
   getItemById,
@@ -182,4 +193,5 @@ export {
   deleteItem,
   uploadImages,
   searchItems,
+  getFeaturedItems,
 };

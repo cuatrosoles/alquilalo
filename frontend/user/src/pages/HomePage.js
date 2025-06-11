@@ -392,9 +392,11 @@ function HomePage() {
                   alt={item.title}
                   className="rounded-xl h-40 object-cover mb-3"
                 />
+
                 <span className="bg-[#FFC107] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 left-3">
                   {item.isNew ? "Nuevo" : "Destacado"}
                 </span>
+
                 <span className="font-semibold text-lg mt-2">{item.title}</span>
                 <span className="bg-[#009688] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 right-3">
                   {categories.find((cat) => cat.id === item.categoryId)?.name ||

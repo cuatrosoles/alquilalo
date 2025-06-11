@@ -86,18 +86,16 @@ export const getCategories = async () => {
 
 export const getFeaturedItems = async () => {
   try {
-    const response = await axiosInstance.get("/items", {
-      params: { featured: true },
-    });
-    console.log("Respuesta de items destacados:", response.data);
+    const response = await axiosInstance.get("/items/featured");
     return response.data;
   } catch (error) {
     console.error(
-      "Error al obtener items destacados:",
+      "Error al obtener artículos destacados:",
       error.response?.data || error.message
     );
     throw new Error(
-      error.response?.data?.message || "Error al obtener los items destacados"
+      error.response?.data?.message ||
+        "Error al obtener los artículos destacados"
     );
   }
 };

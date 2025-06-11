@@ -175,6 +175,18 @@ const searchItemsHandler = async (req, res) => {
   }
 };
 
+const getFeaturedItemsHandler = async (req, res) => {
+  try {
+    const items = await itemService.getFeaturedItems();
+    res.json(items);
+  } catch (error) {
+    console.error("Error en getFeaturedItemsHandler:", error);
+    res.status(500).json({
+      message: error.message || "Error al obtener los artículos destacados",
+    });
+  }
+};
+
 export {
   createNewItem,
   getItem,
@@ -183,4 +195,5 @@ export {
   deleteExistingItem,
   updateItemAvailability,
   searchItemsHandler,
+  getFeaturedItemsHandler,
 };

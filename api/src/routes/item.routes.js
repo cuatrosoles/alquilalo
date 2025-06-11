@@ -7,6 +7,7 @@ import {
   updateExistingItem,
   deleteExistingItem,
   searchItemsHandler,
+  getFeaturedItemsHandler,
 } from "../controllers/item.controller.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import multer from "multer"; // Para la subida de archivos
@@ -15,6 +16,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() }); // Almacenar archivos en memoria antes de subirlos a Firebase Storage
 
 // Rutas específicas primero
+router.get("/featured", getFeaturedItemsHandler);
 router.get("/search", searchItemsHandler);
 router.get("/", getAllItemsHandler);
 
