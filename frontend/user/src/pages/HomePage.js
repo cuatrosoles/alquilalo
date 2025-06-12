@@ -124,7 +124,10 @@ function HomePage() {
 
       const results = await searchItems(filters);
 
-      if (results.length === 0) {
+      // Asegurarnos de que results sea un array
+      const searchResults = Array.isArray(results) ? results : [];
+
+      if (searchResults.length === 0) {
         setError("No se encontraron resultados para tu búsqueda");
         return;
       }
@@ -132,7 +135,7 @@ function HomePage() {
       // Navegar a la página de resultados con los datos
       navigate("/search", {
         state: {
-          results,
+          results: searchResults,
           filters: {
             search: searchTerm,
             category: selectedCategory,
@@ -394,10 +397,13 @@ function HomePage() {
                 />
 
                 <span className="bg-[#FFC107] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 left-3">
-                  {item.isNew ? "Nuevo" : "Destacado"}
+                  Destacado
                 </span>
 
-                <span className="font-semibold text-lg mt-2">{item.title}</span>
+                <span className="font-semibold text-lg mt-2 mb-3 h-20">
+                  {item.title}
+                </span>
+
                 <span className="bg-[#009688] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 right-3">
                   {categories.find((cat) => cat.id === item.categoryId)?.name ||
                     "Sin categoría"}
@@ -406,8 +412,13 @@ function HomePage() {
                   {formatLocation(item.location)}
                 </span>
                 <span className="text-[#009688] font-bold mt-2 text-lg">
-                  ${item.pricePerDay}{" "}
-                  <span className="text-xs text-gray-500">/día</span>
+                  $
+                  {item.priceType === "daily"
+                    ? item.pricePerDay
+                    : item.pricePerHour}
+                  <span className="text-sm font-normal text-gray-500">
+                    {item.priceType === "daily" ? "/día" : "/hora"}
+                  </span>
                 </span>
                 <Link
                   id="details-button-tour"

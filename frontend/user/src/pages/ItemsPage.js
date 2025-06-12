@@ -348,9 +348,11 @@ function ItemsPage() {
                         </div>
                       </div>
                       <div className="p-4">
-                        <h3 className="font-semibold text-lg text-gray-800 truncate group-hover:text-orange-600 transition">
-                          {item.title}
-                        </h3>
+                        <span className="font-semibold text-lg mt-2 mb-3 h-20 block overflow-hidden">
+                          <h3 className="font-semibold text-lg text-gray-800 group-hover:text-orange-600 transition line-clamp-3">
+                            {item.title}
+                          </h3>
+                        </span>
                         <p className="text-gray-500 text-sm mt-1">
                           {getCategoryName(item.categoryId)}
                         </p>

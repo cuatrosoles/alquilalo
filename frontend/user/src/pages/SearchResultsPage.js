@@ -13,11 +13,13 @@ const FilterSection = ({ title, children }) => (
 
 function SearchResultsPage() {
   const location = useLocation();
-  const { results: initialResults, filters: searchFilters } =
-    location.state || { results: [], filters: {} };
+  const { results: initialResults = [], filters: searchFilters = {} } =
+    location.state || {};
 
   // --- Estados para la página ---
-  const [displayedResults, setDisplayedResults] = useState(initialResults);
+  const [displayedResults, setDisplayedResults] = useState(
+    Array.isArray(initialResults) ? initialResults : []
+  );
   const [categories, setCategories] = useState([]); // <-- NUEVO: Estado para las categorías
   const [loading, setLoading] = useState(false); // No se necesita loading inicial, los datos ya vienen
   const [error, setError] = useState(null);
@@ -67,7 +69,9 @@ function SearchResultsPage() {
 
   // Efecto para aplicar filtros y ordenamiento
   useEffect(() => {
-    let resultsToFilter = [...initialResults];
+    let resultsToFilter = Array.isArray(initialResults)
+      ? [...initialResults]
+      : [];
 
     resultsToFilter = resultsToFilter.filter((item) => {
       if (item.pricePerDay > filters.maxPrice) return false;
@@ -110,6 +114,7 @@ function SearchResultsPage() {
   }, [filters, initialResults, userLocation]);
 
   const currentItemsOnPage = useMemo(() => {
+    if (!Array.isArray(displayedResults)) return [];
     const firstItemIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return displayedResults.slice(
       firstItemIndex,

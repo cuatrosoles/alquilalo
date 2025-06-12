@@ -143,6 +143,7 @@ const updateItemAvailability = async (itemId, status, startDate, endDate) => {
 const searchItemsHandler = async (req, res) => {
   try {
     const { search, categoryId, location } = req.query;
+    console.log("Parámetros de búsqueda:", { search, categoryId, location });
 
     // Validar que al menos haya un criterio de búsqueda
     if (!search && !categoryId && !location) {
@@ -157,6 +158,8 @@ const searchItemsHandler = async (req, res) => {
       categoryId,
       location,
     });
+
+    console.log("Resultados de búsqueda:", items.length);
 
     if (items.length === 0) {
       return res.status(200).json({

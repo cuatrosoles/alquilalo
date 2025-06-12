@@ -44,7 +44,13 @@ export const searchItems = async (filters) => {
     const searchParams = new URLSearchParams();
 
     if (filters.search) {
-      searchParams.append("search", filters.search);
+      // Normalizar el término de búsqueda antes de enviarlo
+      const searchTerm = filters.search
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+      searchParams.append("search", searchTerm);
     }
     if (filters.categoryId) {
       searchParams.append("categoryId", filters.categoryId);
@@ -52,6 +58,8 @@ export const searchItems = async (filters) => {
     if (filters.location) {
       searchParams.append("location", filters.location);
     }
+
+    console.log("Enviando búsqueda con parámetros:", searchParams.toString());
 
     const response = await axiosInstance.get(
       `/items/search?${searchParams.toString()}`

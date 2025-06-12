@@ -133,39 +133,78 @@ const uploadImages = async (files) => {
   }
 };
 
+// Función para normalizar texto (eliminar acentos y convertir a minúsculas)
+const normalizeText = (text) => {
+  if (!text) return "";
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
 const searchItems = async (filters = {}) => {
   try {
     let query = itemsCollection;
     const snapshot = await query.get();
     let items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
+    console.log("Total de items antes de filtrar:", items.length);
+
     // Aplicar todos los filtros
     if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      items = items.filter(
-        (item) =>
-          item.title.toLowerCase().includes(searchTerm) ||
-          item.description.toLowerCase().includes(searchTerm)
-      );
+      const searchTerm = normalizeText(filters.search);
+      console.log("Término de búsqueda normalizado:", searchTerm);
+
+      items = items.filter((item) => {
+        const titleMatch =
+          item.title && normalizeText(item.title).includes(searchTerm);
+        const descriptionMatch =
+          item.description &&
+          normalizeText(item.description).includes(searchTerm);
+        const slugMatch =
+          item.slug && normalizeText(item.slug).includes(searchTerm);
+
+        if (titleMatch || descriptionMatch || slugMatch) {
+          console.log("Coincidencia encontrada en item:", item.title);
+          return true;
+        }
+        return false;
+      });
+
+      console.log("Items después de filtrar por búsqueda:", items.length);
     }
 
     if (filters.categoryId) {
       items = items.filter((item) => item.categoryId === filters.categoryId);
+      console.log("Items después de filtrar por categoría:", items.length);
     }
 
     if (filters.location) {
-      const locationTerm = filters.location.toLowerCase();
+      const locationTerm = normalizeText(filters.location);
       items = items.filter((item) => {
         const itemLocation = item.location?.address;
         if (!itemLocation) return false;
 
-        return (
-          itemLocation.city?.toLowerCase().includes(locationTerm) ||
-          itemLocation.province?.toLowerCase().includes(locationTerm) ||
-          itemLocation.street?.toLowerCase().includes(locationTerm)
-        );
+        const cityMatch =
+          itemLocation.city &&
+          normalizeText(itemLocation.city).includes(locationTerm);
+        const provinceMatch =
+          itemLocation.province &&
+          normalizeText(itemLocation.province).includes(locationTerm);
+        const streetMatch =
+          itemLocation.street &&
+          normalizeText(itemLocation.street).includes(locationTerm);
+
+        return cityMatch || provinceMatch || streetMatch;
       });
+      console.log("Items después de filtrar por ubicación:", items.length);
     }
+
+    // Filtrar solo items disponibles
+    items = items.filter((item) => item.isAvailable !== false);
+    console.log("Items finales después de todos los filtros:", items.length);
 
     return items;
   } catch (error) {
