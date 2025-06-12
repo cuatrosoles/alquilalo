@@ -7,10 +7,15 @@ import {
   where,
   orderBy,
   onSnapshot,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-hot-toast";
 
 function AccountPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rentals, setRentals] = useState({
@@ -23,6 +28,14 @@ function AccountPage() {
     pending: 0,
     total: 0,
   });
+
+  // Verificar autenticación
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+  }, [user, navigate]);
 
   const updateBalance = useCallback((ownerRentals, renterRentals) => {
     let available = 0;
@@ -62,9 +75,8 @@ function AccountPage() {
         setLoading(true);
         setError(null);
 
-        const user = auth.currentUser;
         if (!user) {
-          navigate("/login");
+          setLoading(false);
           return;
         }
 
@@ -96,7 +108,7 @@ function AccountPage() {
         // Configurar listeners para alquileres como inquilino
         const renterRentalsQuery = query(
           collection(db, "rentals"),
-          where("renterId", "==", user.uid),
+          where("userId", "==", user.uid),
           orderBy("createdAt", "desc")
         );
 
@@ -132,16 +144,42 @@ function AccountPage() {
       if (ownerUnsubscribe) ownerUnsubscribe();
       if (renterUnsubscribe) renterUnsubscribe();
     };
-  }, [navigate, updateBalance]);
+  }, [user, updateBalance]);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
-    const date = timestamp.toDate();
-    return new Intl.DateTimeFormat("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(date);
+
+    let date;
+    try {
+      // Si es un timestamp de Firestore
+      if (timestamp.toDate) {
+        date = timestamp.toDate();
+      }
+      // Si es un timestamp de JavaScript
+      else if (timestamp instanceof Date) {
+        date = timestamp;
+      }
+      // Si es un número (timestamp en milisegundos)
+      else if (typeof timestamp === "number") {
+        date = new Date(timestamp);
+      }
+      // Si es un string de fecha
+      else if (typeof timestamp === "string") {
+        date = new Date(timestamp);
+      } else {
+        console.warn("Formato de fecha no reconocido:", timestamp);
+        return "Fecha no disponible";
+      }
+
+      return new Intl.DateTimeFormat("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(date);
+    } catch (error) {
+      console.error("Error al formatear fecha:", error);
+      return "Fecha no disponible";
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -164,6 +202,127 @@ function AccountPage() {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const TestimonialForm = () => {
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!user) {
+        toast.error("Debes iniciar sesión para dejar un testimonio");
+        navigate("/login");
+        return;
+      }
+
+      if (!comment.trim()) {
+        toast.error("Por favor, escribe un comentario");
+        return;
+      }
+
+      setSubmitting(true);
+      try {
+        const testimonialData = {
+          userId: user.uid,
+          userName: user.displayName || "Usuario",
+          userPhoto: user.photoURL || "https://via.placeholder.com/60",
+          rating,
+          comment: comment.trim(),
+          createdAt: serverTimestamp(),
+          status: "active", // Agregamos un estado para moderación
+        };
+
+        // Verificar que todos los campos requeridos estén presentes
+        if (!testimonialData.userId || !testimonialData.comment) {
+          throw new Error("Faltan campos requeridos");
+        }
+
+        await addDoc(collection(db, "testimonials"), testimonialData);
+
+        toast.success("¡Gracias por compartir tu experiencia!");
+        setComment("");
+        setRating(5);
+      } catch (error) {
+        console.error("Error al enviar testimonio:", error);
+        if (error.code === "permission-denied") {
+          toast.error(
+            "No tienes permisos para enviar testimonios. Por favor, contacta al soporte."
+          );
+        } else {
+          toast.error(
+            "Error al enviar tu testimonio. Por favor, intenta de nuevo."
+          );
+        }
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Comparte tu experiencia
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Calificación
+            </label>
+            <div className="flex items-center space-x-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className="focus:outline-none"
+                >
+                  <svg
+                    className={`w-8 h-8 ${
+                      star <= rating ? "text-[#FFC107]" : "text-gray-300"
+                    }`}
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label
+              htmlFor="comment"
+              className="block text-gray-700 text-sm font-bold mb-2"
+            >
+              Tu comentario
+            </label>
+            <textarea
+              id="comment"
+              rows="4"
+              className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-[#009688]"
+              placeholder="Cuéntanos tu experiencia con Alquilalo..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              required
+              maxLength={500}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className={`w-full bg-[#009688] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#00796B] transition-colors ${
+              submitting ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {submitting ? "Enviando..." : "Enviar testimonio"}
+          </button>
+        </form>
+      </div>
+    );
   };
 
   if (loading) {
@@ -391,6 +550,8 @@ function AccountPage() {
               )}
             </div>
           </div>
+
+          <TestimonialForm />
         </div>
       </main>
     </div>

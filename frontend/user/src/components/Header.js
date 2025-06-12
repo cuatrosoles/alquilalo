@@ -57,7 +57,7 @@ function Header() {
               </Link>
               <div className="relative group">
                 <img
-                  src={user.avatar || "./images/user_icon.png"}
+                  src={user.photoURL || "./images/user_icon.png"}
                   alt="Usuario"
                   className="h-10 w-10 rounded-full border-2 border-[#FFC107] cursor-pointer"
                 />

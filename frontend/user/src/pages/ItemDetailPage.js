@@ -6,6 +6,7 @@ import api from "../utils/api";
 import Calendario from "../components/Calendario";
 import Mapa from "../components/Mapa";
 import RentalModal from "../components/RentalModal";
+import RelatedItems from "../components/RelatedItems";
 
 function ItemDetailPage() {
   const { id } = useParams();
@@ -410,10 +411,12 @@ function ItemDetailPage() {
 
               {/* Otros ítems del mismo usuario/categoría */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h4 className="font-semibold mb-2">
-                  Más artículos de este usuario o categoría
-                </h4>
-                <div className="text-gray-400 text-sm">(Próximamente)</div>
+                <RelatedItems
+                  currentItemId={id}
+                  category={item.category}
+                  ownerId={item.userId}
+                  limit={4}
+                />
               </div>
             </div>
 

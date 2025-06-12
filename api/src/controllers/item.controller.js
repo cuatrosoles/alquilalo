@@ -190,6 +190,27 @@ const getFeaturedItemsHandler = async (req, res) => {
   }
 };
 
+const getRelatedItems = async (req, res) => {
+  try {
+    const { currentItemId, category, ownerId, limit = 4 } = req.query;
+
+    // Obtener items relacionados por categoría y propietario
+    const relatedItems = await itemService.getRelatedItems(
+      currentItemId,
+      category,
+      ownerId,
+      parseInt(limit)
+    );
+
+    res.json(relatedItems);
+  } catch (error) {
+    console.error("Error al obtener items relacionados:", error);
+    res.status(500).json({
+      message: error.message || "Error al obtener items relacionados",
+    });
+  }
+};
+
 export {
   createNewItem,
   getItem,
@@ -199,4 +220,5 @@ export {
   updateItemAvailability,
   searchItemsHandler,
   getFeaturedItemsHandler,
+  getRelatedItems,
 };

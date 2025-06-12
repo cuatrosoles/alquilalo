@@ -8,6 +8,7 @@ import {
   deleteExistingItem,
   searchItemsHandler,
   getFeaturedItemsHandler,
+  getRelatedItems,
 } from "../controllers/item.controller.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import multer from "multer"; // Para la subida de archivos
@@ -17,6 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() }); // Almacenar archivo
 
 // Rutas específicas primero
 router.get("/featured", getFeaturedItemsHandler);
+router.get("/related", getRelatedItems);
 router.get("/search", searchItemsHandler);
 router.get("/", getAllItemsHandler);
 

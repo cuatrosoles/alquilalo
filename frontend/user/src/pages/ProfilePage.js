@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, db } from "../config/firebase";
+import { auth, db, storage } from "../config/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 function ProfilePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [userData, setUserData] = useState({
@@ -15,6 +17,7 @@ function ProfilePage() {
     address: "",
     city: "",
     country: "",
+    photoURL: "",
     emailPreferences: {
       rentalUpdates: true,
       marketingEmails: false,
@@ -34,12 +37,11 @@ function ProfilePage() {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const userDocData = userDoc.data();
-          // Only update if there are actual changes to prevent unnecessary re-renders
           setUserData((prev) => ({
             ...prev,
             ...userDocData,
             displayName: user.displayName || prev.displayName,
-            // Preserve emailPreferences if not in the document
+            photoURL: user.photoURL || prev.photoURL,
             emailPreferences: {
               ...prev.emailPreferences,
               ...(userDocData.emailPreferences || {}),
@@ -55,7 +57,70 @@ function ProfilePage() {
     };
 
     fetchUserData();
-  }, [navigate]); // Removed userData from dependencies to prevent infinite loop
+  }, [navigate]);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith("image/")) {
+      setError("Por favor, selecciona una imagen válida");
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("La imagen no debe superar los 5MB");
+      return;
+    }
+
+    setUploadingImage(true);
+    setError(null);
+
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      // Crear referencia única para la imagen
+      const imageRef = ref(
+        storage,
+        `user_photos/${user.uid}/${Date.now()}_${file.name}`
+      );
+
+      // Subir imagen
+      await uploadBytes(imageRef, file);
+
+      // Obtener URL de la imagen
+      const photoURL = await getDownloadURL(imageRef);
+
+      // Actualizar perfil en Firebase Auth
+      await updateProfile(user, {
+        photoURL: photoURL,
+      });
+
+      // Actualizar en Firestore
+      await updateDoc(doc(db, "users", user.uid), {
+        photoURL: photoURL,
+      });
+
+      // Actualizar estado local
+      setUserData((prev) => ({
+        ...prev,
+        photoURL: photoURL,
+      }));
+
+      setSuccess("Imagen de perfil actualizada correctamente");
+    } catch (error) {
+      console.error("Error al subir la imagen:", error);
+      setError("Error al subir la imagen. Por favor, intenta de nuevo.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, checked } = e.target;
@@ -92,6 +157,7 @@ function ProfilePage() {
       // Actualizar perfil en Firebase Auth
       await updateProfile(user, {
         displayName: userData.displayName,
+        photoURL: userData.photoURL,
       });
 
       // Actualizar datos en Firestore
@@ -101,6 +167,7 @@ function ProfilePage() {
         address: userData.address,
         city: userData.city,
         country: userData.country,
+        photoURL: userData.photoURL,
         emailPreferences: userData.emailPreferences,
       });
 
@@ -144,6 +211,70 @@ function ProfilePage() {
             className="bg-white rounded-2xl shadow-lg p-8"
           >
             <div className="space-y-6">
+              {/* Foto de Perfil */}
+              <div className="flex flex-col items-center mb-6">
+                <div className="relative">
+                  {userData.photoURL ? (
+                    <img
+                      src={userData.photoURL}
+                      alt="Foto de perfil"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-[#009688]"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 rounded-full border-4 border-[#009688] bg-gray-100 flex items-center justify-center">
+                      <svg
+                        className="w-20 h-20 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                  <label
+                    htmlFor="photo-upload"
+                    className="absolute bottom-0 right-0 bg-[#009688] text-white p-2 rounded-full cursor-pointer hover:bg-[#00796B] transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={uploadingImage}
+                  />
+                </div>
+                {uploadingImage && (
+                  <div className="mt-2 text-sm text-gray-500">
+                    Subiendo imagen...
+                  </div>
+                )}
+              </div>
+
               {/* Información Personal */}
               <div>
                 <h2 className="text-2xl font-semibold mb-4">

@@ -1,6 +1,7 @@
 // src/services/item.service.js
 import { db, storage } from "../config/firebase.js";
 import slugify from "slugify";
+import { collection, query, where, getDocs, limit } from "firebase/firestore";
 
 const itemsCollection = db.collection("items");
 
@@ -221,6 +222,44 @@ const getFeaturedItems = async () => {
   } catch (error) {
     console.error("Error al obtener los artículos destacados:", error);
     throw error;
+  }
+};
+
+export const getRelatedItems = async (
+  currentItemId,
+  category,
+  ownerId,
+  limit
+) => {
+  try {
+    // Crear una consulta que busque items por categoría o propietario
+    const itemsRef = collection(db, "items");
+    const q = query(
+      itemsRef,
+      where("id", "!=", currentItemId), // Excluir el item actual
+      where("status", "==", "active"), // Solo items activos
+      limit(limit * 2) // Pedir el doble para tener más opciones de filtrado
+    );
+
+    const snapshot = await getDocs(q);
+    const items = [];
+
+    snapshot.forEach((doc) => {
+      const item = { id: doc.id, ...doc.data() };
+      // Calcular un score de relevancia basado en categoría y propietario
+      let score = 0;
+      if (item.category === category) score += 2;
+      if (item.userId === ownerId) score += 1;
+      items.push({ ...item, relevanceScore: score });
+    });
+
+    // Ordenar por score de relevancia y limitar resultados
+    return items
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
+      .slice(0, limit);
+  } catch (error) {
+    console.error("Error en getRelatedItems:", error);
+    throw new Error("Error al obtener items relacionados");
   }
 };
 

@@ -71,10 +71,12 @@ function ItemsPage() {
     fetchPageData();
   }, []);
 
+  /*
   const availableCategories = useMemo(() => {
     const cats = allItems.map((item) => item.categoryName || "Sin Categoría");
     return ["all", ...new Set(cats)];
   }, [allItems]);
+  */
 
   // Efecto para aplicar filtros y ordenamiento
   useEffect(() => {

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { searchItems, getCategories, getFeaturedItems } from "../services/api";
 import { useTour } from "../contexts/TourContext"; // Importa el hook del tour
 import TourGuide from "../components/TourGuide"; // El componente visual del tour
+import TestimonialsCarousel from "../components/TestimonialsCarousel";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -127,12 +128,7 @@ function HomePage() {
       // Asegurarnos de que results sea un array
       const searchResults = Array.isArray(results) ? results : [];
 
-      if (searchResults.length === 0) {
-        setError("No se encontraron resultados para tu búsqueda");
-        return;
-      }
-
-      // Navegar a la página de resultados con los datos
+      // Navegar a la página de resultados con los datos, incluso si no hay resultados
       navigate("/search", {
         state: {
           results: searchResults,
@@ -141,6 +137,10 @@ function HomePage() {
             category: selectedCategory,
             location: location,
           },
+          message:
+            searchResults.length === 0
+              ? "No se encontraron resultados para tu búsqueda"
+              : null,
         },
       });
     } catch (error) {
@@ -440,6 +440,9 @@ function HomePage() {
             </Link>
           </div>
         </section>
+
+        {/* Testimonios */}
+        <TestimonialsCarousel />
       </main>
 
       {/* NUEVO: Botón Flotante para el Tour */}
