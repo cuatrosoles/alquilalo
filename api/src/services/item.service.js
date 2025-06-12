@@ -1,7 +1,6 @@
 // src/services/item.service.js
 import { db, storage } from "../config/firebase.js";
 import slugify from "slugify";
-import { collection, query, where, getDocs, limit } from "firebase/firestore";
 
 const itemsCollection = db.collection("items");
 
@@ -233,19 +232,18 @@ export const getRelatedItems = async (
 ) => {
   try {
     // Crear una consulta que busque items por categoría o propietario
-    const itemsRef = collection(db, "items");
-    const q = query(
-      itemsRef,
-      where("id", "!=", currentItemId), // Excluir el item actual
-      where("status", "==", "active"), // Solo items activos
-      limit(limit * 2) // Pedir el doble para tener más opciones de filtrado
-    );
+    let query = itemsCollection
+      .where("status", "==", "active")
+      .limit(limit * 2);
 
-    const snapshot = await getDocs(q);
+    const snapshot = await query.get();
     const items = [];
 
     snapshot.forEach((doc) => {
       const item = { id: doc.id, ...doc.data() };
+      // Excluir el item actual
+      if (item.id === currentItemId) return;
+
       // Calcular un score de relevancia basado en categoría y propietario
       let score = 0;
       if (item.category === category) score += 2;
