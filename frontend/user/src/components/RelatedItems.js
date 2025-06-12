@@ -57,21 +57,21 @@ const RelatedItems = ({ currentItemId, category, ownerId, limit = 4 }) => {
         {relatedItems.map((item) => (
           <Link
             key={item.id}
-            to={`/items/${item.id}`}
-            className="group block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+            to={`/item/${item.id}`}
+            className="group block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200 h-full flex flex-col"
           >
-            <div className="aspect-w-16 aspect-h-9">
+            <div className="relative pt-[75%]">
               <img
                 src={item.images[0]}
                 alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-200"
               />
             </div>
-            <div className="p-3">
-              <h5 className="font-medium text-gray-900 group-hover:text-[#FFC107] transition-colors duration-200">
+            <div className="p-3 flex-grow flex flex-col">
+              <h5 className="font-medium text-gray-900 group-hover:text-[#FFC107] transition-colors duration-200 line-clamp-2">
                 {item.title}
               </h5>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-1 mt-auto">
                 $
                 {item.priceType === "hourly"
                   ? item.pricePerHour

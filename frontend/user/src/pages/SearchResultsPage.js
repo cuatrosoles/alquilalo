@@ -348,7 +348,7 @@ function SearchResultsPage() {
                                 item.images[0] || "https://placehold.co/300x200"
                               }
                               alt={item.title}
-                              className="h-48 w-full object-cover"
+                              className="h-48 w-full object-contain"
                             />
                             <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                               {item.itemCondition === "excelent" && "Excelente"}

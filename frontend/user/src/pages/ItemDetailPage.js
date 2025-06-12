@@ -88,10 +88,10 @@ function ItemDetailPage() {
           },
         };
 
-        console.log(
-          "Datos de availability recibidos:",
-          itemData.availability.blockedDates
-        );
+        //console.log(
+        //  "Datos de availability recibidos:",
+        //  itemData.availability.blockedDates
+        //);
         setItem(itemData);
         setReviews(reviewsResponse.data);
 

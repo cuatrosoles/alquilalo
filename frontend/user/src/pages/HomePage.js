@@ -388,30 +388,31 @@ function HomePage() {
               <div
                 key={item.id}
                 id="product-card-tour"
-                className="bg-white rounded-2xl shadow p-6 flex flex-col relative"
+                className="bg-white rounded-2xl shadow p-3 flex flex-col relative h-full"
               >
-                <img
-                  src={item.images[0] || "https://picsum.photos/300/200"}
-                  alt={item.title}
-                  className="rounded-xl h-40 object-cover mb-3"
-                />
+                <div className="relative pt-[75%] mb-3">
+                  <img
+                    src={item.images[0] || "https://picsum.photos/300/200"}
+                    alt={item.title}
+                    className="absolute inset-0 w-full h-full object-contain p-2"
+                  />
+                  <span className="bg-[#FFC107] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-[0.05rem] left-[0.05rem]">
+                    Destacado
+                  </span>
+                  <span className="bg-[#009688] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-[0.05rem] right-[0.05rem]">
+                    {categories.find((cat) => cat.id === item.categoryId)
+                      ?.name || "Sin categoría"}
+                  </span>
+                </div>
 
-                <span className="bg-[#FFC107] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 left-3">
-                  Destacado
-                </span>
-
-                <span className="font-semibold text-lg mt-2 mb-3 h-20">
+                <span className="font-semibold text-lg mb-3 line-clamp-2">
                   {item.title}
                 </span>
 
-                <span className="bg-[#009688] text-white text-xs font-bold px-3 py-1 rounded-full absolute top-3 right-3">
-                  {categories.find((cat) => cat.id === item.categoryId)?.name ||
-                    "Sin categoría"}
-                </span>
-                <span className="bg-[#f4f4f4] text-gray-700 text-base px-3 py-1 rounded">
+                <span className="bg-[#f4f4f4] text-gray-700 text-base px-3 py-1 rounded mb-2">
                   {formatLocation(item.location)}
                 </span>
-                <span className="text-[#009688] font-bold mt-2 text-lg">
+                <span className="text-[#009688] font-bold text-lg">
                   $
                   {item.priceType === "daily"
                     ? item.pricePerDay
@@ -423,7 +424,7 @@ function HomePage() {
                 <Link
                   id="details-button-tour"
                   to={`/item/${item.id}`}
-                  className="mt-3 border border-[#009688] text-[#009688] rounded-full py-2 font-semibold hover:bg-[#009688] hover:text-white transition text-center"
+                  className="mt-auto pt-3 border border-[#009688] text-[#009688] rounded-full py-2 font-semibold hover:bg-[#009688] hover:text-white transition text-center"
                 >
                   Ver Detalles
                 </Link>
