@@ -7,11 +7,20 @@ import {
   where,
   orderBy,
   onSnapshot,
-  addDoc,
-  serverTimestamp,
+  getDocs,
 } from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-hot-toast";
+import Calendario from "../components/Calendario";
+import RentalStats from "../components/RentalStats";
+import {
+  format,
+  parseISO,
+  isWithinInterval,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
+import { es } from "date-fns/locale";
 
 function AccountPage() {
   const navigate = useNavigate();
@@ -23,10 +32,19 @@ function AccountPage() {
     asRenter: [],
   });
   const [activeTab, setActiveTab] = useState("overview");
-  const [balance, setBalance] = useState({
-    available: 0,
-    pending: 0,
-    total: 0,
+  const [selectedRental, setSelectedRental] = useState(null);
+  const [showRentalDetails, setShowRentalDetails] = useState(false);
+  const [calendarView, setCalendarView] = useState({
+    mode: "month", // 'month' o 'week'
+    selectedDate: new Date(),
+  });
+  const [stats, setStats] = useState({
+    totalRentals: 0,
+    activeRentals: 0,
+    completedRentals: 0,
+    totalEarnings: 0,
+    totalSpent: 0,
+    averageRating: 0,
   });
 
   // Verificar autenticación
@@ -37,33 +55,38 @@ function AccountPage() {
     }
   }, [user, navigate]);
 
-  const updateBalance = useCallback((ownerRentals, renterRentals) => {
-    let available = 0;
-    let pending = 0;
+  const calculateStats = useCallback((ownerRentals, renterRentals) => {
+    const allRentals = [...ownerRentals, ...renterRentals];
+    const stats = {
+      totalRentals: allRentals.length,
+      activeRentals: allRentals.filter((r) => r.status === "in_progress")
+        .length,
+      completedRentals: allRentals.filter((r) => r.status === "completed")
+        .length,
+      totalEarnings: ownerRentals.reduce(
+        (sum, r) =>
+          r.status === "completed"
+            ? sum + (r.reservationAmount - r.reservationFee)
+            : sum,
+        0
+      ),
+      totalSpent: renterRentals.reduce(
+        (sum, r) =>
+          r.status === "completed" ? sum + r.reservationAmount : sum,
+        0
+      ),
+      averageRating: 0,
+    };
 
-    // Calcular ganancias como propietario
-    ownerRentals.forEach((rental) => {
-      if (rental.status === "completed") {
-        available += rental.totalAmount - rental.totalAmount * 0.1; // 10% fee
-      } else if (rental.status === "pending") {
-        pending += rental.totalAmount - rental.totalAmount * 0.1;
-      }
-    });
+    // Calcular rating promedio
+    const ratedRentals = allRentals.filter((r) => r.rating);
+    if (ratedRentals.length > 0) {
+      stats.averageRating =
+        ratedRentals.reduce((sum, r) => sum + r.rating, 0) /
+        ratedRentals.length;
+    }
 
-    // Calcular gastos como inquilino
-    renterRentals.forEach((rental) => {
-      if (rental.status === "completed") {
-        available -= rental.totalAmount;
-      } else if (rental.status === "pending") {
-        pending -= rental.totalAmount;
-      }
-    });
-
-    setBalance({
-      available,
-      pending,
-      total: available + pending,
-    });
+    setStats(stats);
   }, []);
 
   useEffect(() => {
@@ -95,7 +118,7 @@ function AccountPage() {
               ...doc.data(),
             }));
             setRentals((prev) => {
-              updateBalance(ownerRentals, prev.asRenter);
+              calculateStats(ownerRentals, prev.asRenter);
               return { ...prev, asOwner: ownerRentals };
             });
           },
@@ -120,7 +143,7 @@ function AccountPage() {
               ...doc.data(),
             }));
             setRentals((prev) => {
-              updateBalance(prev.asOwner, renterRentals);
+              calculateStats(prev.asOwner, renterRentals);
               return { ...prev, asRenter: renterRentals };
             });
           },
@@ -139,43 +162,31 @@ function AccountPage() {
 
     fetchUserData();
 
-    // Limpiar listeners al desmontar
     return () => {
       if (ownerUnsubscribe) ownerUnsubscribe();
       if (renterUnsubscribe) renterUnsubscribe();
     };
-  }, [user, updateBalance]);
+  }, [user, calculateStats]);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
 
     let date;
     try {
-      // Si es un timestamp de Firestore
       if (timestamp.toDate) {
         date = timestamp.toDate();
-      }
-      // Si es un timestamp de JavaScript
-      else if (timestamp instanceof Date) {
+      } else if (timestamp instanceof Date) {
         date = timestamp;
-      }
-      // Si es un número (timestamp en milisegundos)
-      else if (typeof timestamp === "number") {
+      } else if (typeof timestamp === "number") {
         date = new Date(timestamp);
-      }
-      // Si es un string de fecha
-      else if (typeof timestamp === "string") {
+      } else if (typeof timestamp === "string") {
         date = new Date(timestamp);
       } else {
         console.warn("Formato de fecha no reconocido:", timestamp);
         return "Fecha no disponible";
       }
 
-      return new Intl.DateTimeFormat("es-ES", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }).format(date);
+      return format(date, "PPP", { locale: es });
     } catch (error) {
       console.error("Error al formatear fecha:", error);
       return "Fecha no disponible";
@@ -191,12 +202,14 @@ function AccountPage() {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case "pending":
+      case "pending_reservation":
         return "bg-yellow-100 text-yellow-800";
-      case "active":
+      case "reserved":
+        return "bg-blue-100 text-blue-800";
+      case "in_progress":
         return "bg-green-100 text-green-800";
       case "completed":
-        return "bg-blue-100 text-blue-800";
+        return "bg-gray-100 text-gray-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:
@@ -204,123 +217,266 @@ function AccountPage() {
     }
   };
 
-  const TestimonialForm = () => {
-    const [rating, setRating] = useState(5);
-    const [comment, setComment] = useState("");
-    const [submitting, setSubmitting] = useState(false);
+  const getStatusText = (status) => {
+    switch (status) {
+      case "pending_reservation":
+        return "Pendiente de Reserva";
+      case "reserved":
+        return "Reservado";
+      case "in_progress":
+        return "En Progreso";
+      case "completed":
+        return "Completado";
+      case "cancelled":
+        return "Cancelado";
+      default:
+        return status;
+    }
+  };
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      if (!user) {
-        toast.error("Debes iniciar sesión para dejar un testimonio");
-        navigate("/login");
-        return;
-      }
+  const handleRentalClick = (rental) => {
+    setSelectedRental(rental);
+    setShowRentalDetails(true);
+  };
 
-      if (!comment.trim()) {
-        toast.error("Por favor, escribe un comentario");
-        return;
-      }
+  const handleEditRental = (rental) => {
+    // Implementar navegación a la página de edición
+    navigate(`/editar-alquiler/${rental.id}`);
+  };
 
-      setSubmitting(true);
+  const handleCalendarDateClick = (date) => {
+    setCalendarView((prev) => ({
+      ...prev,
+      selectedDate: date,
+    }));
+  };
+
+  const getRentalsForDate = (date) => {
+    return [...rentals.asOwner, ...rentals.asRenter].filter((rental) => {
+      let startDate, endDate;
+
       try {
-        const testimonialData = {
-          userId: user.uid,
-          userName: user.displayName || "Usuario",
-          userPhoto: user.photoURL || "https://via.placeholder.com/60",
-          rating,
-          comment: comment.trim(),
-          createdAt: serverTimestamp(),
-          status: "active", // Agregamos un estado para moderación
-        };
-
-        // Verificar que todos los campos requeridos estén presentes
-        if (!testimonialData.userId || !testimonialData.comment) {
-          throw new Error("Faltan campos requeridos");
+        // Intentar convertir las fechas a objetos Date
+        if (rental.startDate?.toDate) {
+          startDate = rental.startDate.toDate();
+        } else if (rental.startDate instanceof Date) {
+          startDate = rental.startDate;
+        } else if (typeof rental.startDate === "string") {
+          startDate = new Date(rental.startDate);
+        } else if (typeof rental.startDate === "number") {
+          startDate = new Date(rental.startDate);
         }
 
-        await addDoc(collection(db, "testimonials"), testimonialData);
+        if (rental.endDate?.toDate) {
+          endDate = rental.endDate.toDate();
+        } else if (rental.endDate instanceof Date) {
+          endDate = rental.endDate;
+        } else if (typeof rental.endDate === "string") {
+          endDate = new Date(rental.endDate);
+        } else if (typeof rental.endDate === "number") {
+          endDate = new Date(rental.endDate);
+        }
 
-        toast.success("¡Gracias por compartir tu experiencia!");
-        setComment("");
-        setRating(5);
+        // Verificar que las fechas sean válidas
+        if (
+          !startDate ||
+          !endDate ||
+          isNaN(startDate.getTime()) ||
+          isNaN(endDate.getTime())
+        ) {
+          console.warn("Fechas inválidas para el alquiler:", rental.id);
+          return false;
+        }
+
+        return isWithinInterval(date, { start: startDate, end: endDate });
       } catch (error) {
-        console.error("Error al enviar testimonio:", error);
-        if (error.code === "permission-denied") {
-          toast.error(
-            "No tienes permisos para enviar testimonios. Por favor, contacta al soporte."
-          );
-        } else {
-          toast.error(
-            "Error al enviar tu testimonio. Por favor, intenta de nuevo."
-          );
-        }
-      } finally {
-        setSubmitting(false);
+        console.error(
+          "Error al procesar fechas del alquiler:",
+          rental.id,
+          error
+        );
+        return false;
       }
-    };
+    });
+  };
+
+  const RentalDetailsModal = ({ rental, onClose }) => {
+    if (!rental) return null;
 
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Comparte tu experiencia
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Calificación
-            </label>
-            <div className="flex items-center space-x-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  className="focus:outline-none"
-                >
-                  <svg
-                    className={`w-8 h-8 ${
-                      star <= rating ? "text-[#FFC107]" : "text-gray-300"
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-bold text-gray-900">
+              Detalles del Alquiler
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Información del artículo */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Artículo</h4>
+              <div className="flex items-start gap-4">
+                {rental.itemInfo?.images?.[0] && (
+                  <img
+                    src={rental.itemInfo.images[0]}
+                    alt={rental.itemInfo.title}
+                    className="w-24 h-24 object-cover rounded-lg"
+                  />
+                )}
+                <div>
+                  <p className="font-medium">{rental.itemInfo?.title}</p>
+                  <p className="text-sm text-gray-600">
+                    {rental.itemInfo?.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Información del alquiler */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">Detalles del Alquiler</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Estado</p>
+                  <p
+                    className={`font-medium ${getStatusBadgeClass(
+                      rental.status
+                    )} px-2 py-1 rounded-full inline-block`}
                   >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
+                    {getStatusText(rental.status)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Reserva</p>
+                  <p className="font-medium">
+                    {formatCurrency(rental.reservationAmount)}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Comisión: {formatCurrency(rental.reservationFee)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Fecha de inicio</p>
+                  <p className="font-medium">{formatDate(rental.startDate)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Fecha de fin</p>
+                  <p className="font-medium">{formatDate(rental.endDate)}</p>
+                </div>
+                {rental.startTime && rental.endTime && (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-600">Hora de inicio</p>
+                      <p className="font-medium">{rental.startTime}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Hora de fin</p>
+                      <p className="font-medium">{rental.endTime}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Información del usuario */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold mb-2">
+                {rental.ownerId === user.uid
+                  ? "Información del Inquilino"
+                  : "Información del Propietario"}
+              </h4>
+              <div className="flex items-center gap-4">
+                <img
+                  src={
+                    rental.ownerId === user.uid
+                      ? rental.renterInfo?.photoURL
+                      : rental.ownerInfo?.photoURL
+                  }
+                  alt="Usuario"
+                  className="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <p className="font-medium">
+                    {rental.ownerId === user.uid
+                      ? rental.renterInfo?.name
+                      : rental.ownerInfo?.name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {rental.ownerId === user.uid
+                      ? rental.renterInfo?.email
+                      : rental.ownerInfo?.email}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {rental.ownerId === user.uid
+                      ? rental.renterInfo?.phone
+                      : rental.ownerInfo?.phone}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mensajes */}
+            {rental.messages && rental.messages.length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">Mensajes</h4>
+                <div className="space-y-2">
+                  {rental.messages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={`p-2 rounded-lg ${
+                        message.senderId === user.uid
+                          ? "bg-blue-100 ml-4"
+                          : "bg-gray-100 mr-4"
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatDate(message.timestamp)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Botones de acción */}
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={() => handleEditRental(rental)}
+                className="bg-[#009688] text-white px-4 py-2 rounded-lg hover:bg-[#00796B] transition-colors"
+              >
+                Editar Alquiler
+              </button>
+              {rental.status === "pending_reservation" && (
+                <button
+                  onClick={() => navigate(`/pagar-reserva/${rental.id}`)}
+                  className="bg-[#FFC107] text-white px-4 py-2 rounded-lg hover:bg-[#FFA000] transition-colors"
+                >
+                  Pagar Reserva
                 </button>
-              ))}
+              )}
             </div>
           </div>
-
-          <div className="mb-6">
-            <label
-              htmlFor="comment"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Tu comentario
-            </label>
-            <textarea
-              id="comment"
-              rows="4"
-              className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-[#009688]"
-              placeholder="Cuéntanos tu experiencia con Alquilalo..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              required
-              maxLength={500}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`w-full bg-[#009688] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#00796B] transition-colors ${
-              submitting ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {submitting ? "Enviando..." : "Enviar testimonio"}
-          </button>
-        </form>
+        </div>
       </div>
     );
   };
@@ -351,34 +507,6 @@ function AccountPage() {
             </div>
           )}
 
-          {/* Balance Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                Balance Disponible
-              </h3>
-              <p className="text-3xl font-bold text-[#009688]">
-                {formatCurrency(balance.available)}
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                Pendiente
-              </h3>
-              <p className="text-3xl font-bold text-[#FFC107]">
-                {formatCurrency(balance.pending)}
-              </p>
-            </div>
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                Balance Total
-              </h3>
-              <p className="text-3xl font-bold text-gray-800">
-                {formatCurrency(balance.total)}
-              </p>
-            </div>
-          </div>
-
           {/* Tabs */}
           <div className="bg-white rounded-2xl shadow-lg mb-8">
             <div className="border-b border-gray-200">
@@ -392,6 +520,16 @@ function AccountPage() {
                   }`}
                 >
                   Resumen
+                </button>
+                <button
+                  onClick={() => setActiveTab("calendar")}
+                  className={`py-4 px-6 text-center border-b-2 font-medium text-sm ${
+                    activeTab === "calendar"
+                      ? "border-[#009688] text-[#009688]"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
+                >
+                  Calendario
                 </button>
                 <button
                   onClick={() => setActiveTab("asOwner")}
@@ -419,6 +557,10 @@ function AccountPage() {
             <div className="p-6">
               {activeTab === "overview" && (
                 <div className="space-y-6">
+                  <RentalStats
+                    rentals={[...rentals.asOwner, ...rentals.asRenter]}
+                    stats={stats}
+                  />
                   <div>
                     <h3 className="text-lg font-semibold mb-4">
                       Próximos Alquileres
@@ -427,22 +569,23 @@ function AccountPage() {
                       {[...rentals.asOwner, ...rentals.asRenter]
                         .filter(
                           (rental) =>
-                            rental.status === "pending" ||
-                            rental.status === "active"
+                            rental.status === "reserved" ||
+                            rental.status === "in_progress"
                         )
                         .slice(0, 4)
                         .map((rental) => (
                           <div
                             key={rental.id}
-                            className="bg-gray-50 rounded-lg p-4"
+                            className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                            onClick={() => handleRentalClick(rental)}
                           >
                             <div className="flex justify-between items-start">
                               <div>
                                 <p className="font-medium">
-                                  {rental.itemTitle}
+                                  {rental.itemInfo?.title}
                                 </p>
                                 <p className="text-sm text-gray-500">
-                                  {rental.ownerId === auth.currentUser.uid
+                                  {rental.ownerId === user.uid
                                     ? "Como Propietario"
                                     : "Como Inquilino"}
                                 </p>
@@ -452,7 +595,7 @@ function AccountPage() {
                                   rental.status
                                 )}`}
                               >
-                                {rental.status}
+                                {getStatusText(rental.status)}
                               </span>
                             </div>
                             <p className="text-sm text-gray-600 mt-2">
@@ -466,15 +609,117 @@ function AccountPage() {
                 </div>
               )}
 
+              {activeTab === "calendar" && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">
+                      Calendario de Alquileres
+                    </h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          setCalendarView((prev) => ({
+                            ...prev,
+                            mode: "month",
+                          }))
+                        }
+                        className={`px-4 py-2 rounded-lg ${
+                          calendarView.mode === "month"
+                            ? "bg-[#009688] text-white"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        Mes
+                      </button>
+                      <button
+                        onClick={() =>
+                          setCalendarView((prev) => ({
+                            ...prev,
+                            mode: "week",
+                          }))
+                        }
+                        className={`px-4 py-2 rounded-lg ${
+                          calendarView.mode === "week"
+                            ? "bg-[#009688] text-white"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        Semana
+                      </button>
+                    </div>
+                  </div>
+                  <Calendario
+                    mode="single"
+                    selected={calendarView.selectedDate}
+                    onChange={handleCalendarDateClick}
+                    filterDate={(date) => {
+                      const rentals = getRentalsForDate(date);
+                      return {
+                        available: rentals.length > 0,
+                        rentals: rentals,
+                      };
+                    }}
+                    className="w-full"
+                  />
+                  {calendarView.selectedDate && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2">
+                        Alquileres para {formatDate(calendarView.selectedDate)}
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {getRentalsForDate(calendarView.selectedDate).map(
+                          (rental) => (
+                            <div
+                              key={rental.id}
+                              className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                              onClick={() => handleRentalClick(rental)}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-medium">
+                                    {rental.itemInfo?.title}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {rental.ownerId === user.uid
+                                      ? "Como Propietario"
+                                      : "Como Inquilino"}
+                                  </p>
+                                </div>
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(
+                                    rental.status
+                                  )}`}
+                                >
+                                  {getStatusText(rental.status)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 mt-2">
+                                {rental.startTime} - {rental.endTime}
+                              </p>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {activeTab === "asOwner" && (
                 <div className="space-y-4">
                   {rentals.asOwner.map((rental) => (
-                    <div key={rental.id} className="bg-gray-50 rounded-lg p-4">
+                    <div
+                      key={rental.id}
+                      className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleRentalClick(rental)}
+                    >
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium">{rental.itemTitle}</p>
+                          <p className="font-medium">
+                            {rental.itemInfo?.title}
+                          </p>
                           <p className="text-sm text-gray-500">
-                            Alquilado por: {rental.renterName}
+                            Alquilado por: {rental.renterInfo?.name}
                           </p>
                         </div>
                         <span
@@ -482,7 +727,7 @@ function AccountPage() {
                             rental.status
                           )}`}
                         >
-                          {rental.status}
+                          {getStatusText(rental.status)}
                         </span>
                       </div>
                       <div className="mt-2 grid grid-cols-2 gap-4">
@@ -491,16 +736,18 @@ function AccountPage() {
                             Fecha: {formatDate(rental.startDate)} -{" "}
                             {formatDate(rental.endDate)}
                           </p>
-                          <p className="text-sm text-gray-600">
-                            Duración: {rental.duration} días
-                          </p>
+                          {rental.startTime && rental.endTime && (
+                            <p className="text-sm text-gray-600">
+                              Horario: {rental.startTime} - {rental.endTime}
+                            </p>
+                          )}
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium">
-                            Total: {formatCurrency(rental.totalAmount)}
+                            Reserva: {formatCurrency(rental.reservationAmount)}
                           </p>
                           <p className="text-xs text-gray-500">
-                            Fee: {formatCurrency(rental.totalAmount * 0.1)}
+                            Comisión: {formatCurrency(rental.reservationFee)}
                           </p>
                         </div>
                       </div>
@@ -512,12 +759,18 @@ function AccountPage() {
               {activeTab === "asRenter" && (
                 <div className="space-y-4">
                   {rentals.asRenter.map((rental) => (
-                    <div key={rental.id} className="bg-gray-50 rounded-lg p-4">
+                    <div
+                      key={rental.id}
+                      className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleRentalClick(rental)}
+                    >
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium">{rental.itemTitle}</p>
+                          <p className="font-medium">
+                            {rental.itemInfo?.title}
+                          </p>
                           <p className="text-sm text-gray-500">
-                            Propietario: {rental.ownerName}
+                            Propietario: {rental.ownerInfo?.name}
                           </p>
                         </div>
                         <span
@@ -525,7 +778,7 @@ function AccountPage() {
                             rental.status
                           )}`}
                         >
-                          {rental.status}
+                          {getStatusText(rental.status)}
                         </span>
                       </div>
                       <div className="mt-2 grid grid-cols-2 gap-4">
@@ -534,13 +787,15 @@ function AccountPage() {
                             Fecha: {formatDate(rental.startDate)} -{" "}
                             {formatDate(rental.endDate)}
                           </p>
-                          <p className="text-sm text-gray-600">
-                            Duración: {rental.duration} días
-                          </p>
+                          {rental.startTime && rental.endTime && (
+                            <p className="text-sm text-gray-600">
+                              Horario: {rental.startTime} - {rental.endTime}
+                            </p>
+                          )}
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium">
-                            Total: {formatCurrency(rental.totalAmount)}
+                            Reserva: {formatCurrency(rental.reservationAmount)}
                           </p>
                         </div>
                       </div>
@@ -550,10 +805,16 @@ function AccountPage() {
               )}
             </div>
           </div>
-
-          <TestimonialForm />
         </div>
       </main>
+
+      {/* Modal de detalles del alquiler */}
+      {showRentalDetails && selectedRental && (
+        <RentalDetailsModal
+          rental={selectedRental}
+          onClose={() => setShowRentalDetails(false)}
+        />
+      )}
     </div>
   );
 }

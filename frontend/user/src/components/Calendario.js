@@ -1,153 +1,196 @@
-import React from 'react';
-import { DateRange } from 'react-date-range';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
-import es from 'date-fns/locale/es';
+import React from "react";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  isToday,
+} from "date-fns";
+import { es } from "date-fns/locale";
 
-const Calendario = ({ selected, onChange, minDate, filterDate, className, mode, rangeStart, rangeEnd }) => {
-  const getValidDate = (date) => {
-    if (!date) return null;
-    const newDate = new Date(date);
-    if (isNaN(newDate.getTime())) return null;
-    newDate.setHours(0, 0, 0, 0);
-    return newDate;
+const Calendario = ({
+  mode = "single", // 'single' o 'range'
+  selected,
+  rangeStart,
+  rangeEnd,
+  onChange,
+  filterDate,
+  minDate,
+  blockedDates = [],
+  className = "",
+}) => {
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = React.useState(today);
+
+  const days = eachDayOfInterval({
+    start: startOfMonth(currentMonth),
+    end: endOfMonth(currentMonth),
+  });
+
+  const handlePrevMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
+    );
   };
 
-  const ranges = mode === 'range' ? [
-    {
-      startDate: getValidDate(rangeStart),
-      endDate: getValidDate(rangeEnd),
-      key: 'selection'
-    }
-  ] : [
-    {
-      startDate: getValidDate(selected),
-      endDate: getValidDate(selected),
-      key: 'selection'
-    }
-  ];
+  const handleNextMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+    );
+  };
 
-  const handleRangeChange = (ranges) => {
-    if (onChange && ranges.selection) {
-      const { startDate, endDate } = ranges.selection;
-      if (mode === 'range') {
-        onChange({ startDate, endDate });
+  const handleDateClick = (date) => {
+    if (mode === "single") {
+      onChange(date);
+    } else if (mode === "range") {
+      if (!rangeStart || (rangeStart && rangeEnd)) {
+        onChange({ startDate: date, endDate: null });
       } else {
-        onChange(startDate);
+        if (date < rangeStart) {
+          onChange({ startDate: date, endDate: rangeStart });
+        } else {
+          onChange({ startDate: rangeStart, endDate: date });
+        }
       }
     }
   };
 
-  const isDateDisabled = (date) => {
-    if (!filterDate) return false;
-    const result = filterDate(date);
-    return typeof result === 'object' ? !result.available : !result;
+  const isDateBlocked = (date) => {
+    if (minDate && date < minDate) return true;
+    if (filterDate) {
+      const result = filterDate(date);
+      return typeof result === "object" ? !result.available : !result;
+    }
+    return false;
   };
 
-  const isDateBlocked = (date) => {
-    if (!filterDate) return false;
-    const result = filterDate(date);
-    return typeof result === 'object' ? result.isBlocked : false;
+  const isDateSelected = (date) => {
+    if (mode === "single") {
+      return selected && isSameDay(date, selected);
+    } else {
+      return (
+        (rangeStart && isSameDay(date, rangeStart)) ||
+        (rangeEnd && isSameDay(date, rangeEnd)) ||
+        (rangeStart && rangeEnd && date > rangeStart && date < rangeEnd)
+      );
+    }
+  };
+
+  const isDateInRange = (date) => {
+    if (mode === "range" && rangeStart && rangeEnd) {
+      return date > rangeStart && date < rangeEnd;
+    }
+    return false;
   };
 
   return (
-    <div className="calendar-container">
-      <div className="calendar-legend mb-4 flex justify-center gap-6">
-        <div className="legend-item flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-purple-200"></div>
-          <span className="text-sm text-gray-600">Reservados</span>
-        </div>
-        <div className="legend-item flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-green-200"></div>
-          <span className="text-sm text-gray-600">Disponibles</span>
-        </div>
-        <div className="legend-item flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-gray-200"></div>
-          <span className="text-sm text-gray-600">No Disponibles</span>
-        </div>
+    <div className={`bg-white rounded-lg shadow ${className}`}>
+      <div className="flex items-center justify-between p-4 border-b">
+        <button
+          onClick={handlePrevMonth}
+          className="p-2 hover:bg-gray-100 rounded-full"
+        >
+          <svg
+            className="w-5 h-5 text-gray-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+        <h2 className="text-lg font-semibold text-gray-800">
+          {format(currentMonth, "MMMM yyyy", { locale: es })}
+        </h2>
+        <button
+          onClick={handleNextMonth}
+          className="p-2 hover:bg-gray-100 rounded-full"
+        >
+          <svg
+            className="w-5 h-5 text-gray-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
       </div>
 
-      <DateRange
-        ranges={ranges}
-        onChange={handleRangeChange}
-        months={1}
-        direction="horizontal"
-        locale={es}
-        minDate={minDate}
-        disabledDay={isDateDisabled}
-        passiveDay={isDateBlocked}
-        showDateDisplay={false}
-        showMonthAndYearPickers={true}
-        rangeColors={['#86efac']}
-        dayDisplayFormat="d"
-        styles={{
-          calendar: {
-            width: '100%',
-            backgroundColor: 'white',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          },
-          day: {
-            borderRadius: '0.25rem',
-            margin: '0.125rem',
-            height: '3rem',
-            fontSize: '1rem',
-            '&.rdrDayDisabled': {
-              backgroundColor: '#336699', // original: #e5e7eb
-              color: '#ffffff',  // original: #9ca3af
-            },
-            '&.rdrDayPassive': {
-              backgroundColor: '#e59999',
-              color: '#9ca666',
-            },
-            '&.rdrDayToday': {
-              backgroundColor: '#86efac',
-              color: '#166534',
-            },
-            '&.rdrDaySelected': {
-              backgroundColor: '#86efac',
-              color: '#166534',
-            },
-            '&.rdrDayInRange': {
-              backgroundColor: '#86efac',
-              color: '#166534',
-            },
-            '&.rdrDayStartOfWeek': {
-              color: '#4b5563',
-            },
-            '&.rdrDayEndOfWeek': {
-              color: '#4b5563',
-            },
-          },
-          monthPicker: {
-            backgroundColor: 'white',
-            color: '#1f2937',
-            fontSize: '1rem',
-          },
-          yearPicker: {
-            backgroundColor: 'white',
-            color: '#1f2937',
-            fontSize: '1rem',
-          },
-          prevButton: {
-            color: '#4b5563',
-            width: '2rem',
-            height: '2rem',
-          },
-          nextButton: {
-            color: '#4b5563',
-            width: '2rem',
-            height: '2rem',
-          },
-          weekDay: {
-            fontSize: '1rem',
-            color: '#4b5563',
-            padding: '0.5rem 0',
-          },
-        }}
-      />
+      <div className="grid grid-cols-7 gap-px bg-gray-200">
+        {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day) => (
+          <div
+            key={day}
+            className="bg-gray-50 py-2 text-center text-sm font-medium text-gray-500"
+          >
+            {day}
+          </div>
+        ))}
+
+        {days.map((date) => {
+          const isBlocked = isDateBlocked(date);
+          const isSelected = isDateSelected(date);
+          const isInRange = isDateInRange(date);
+          const isCurrentMonth = isSameMonth(date, currentMonth);
+
+          return (
+            <button
+              key={date.toString()}
+              onClick={() => !isBlocked && handleDateClick(date)}
+              disabled={isBlocked}
+              className={`
+                relative h-12 text-center text-sm
+                ${isCurrentMonth ? "bg-white" : "bg-gray-50"}
+                ${
+                  isBlocked
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer hover:bg-gray-50"
+                }
+                ${
+                  isSelected ? "bg-[#009688] text-white hover:bg-[#00796B]" : ""
+                }
+                ${isInRange ? "bg-[#009688]/20" : ""}
+                ${isToday(date) ? "font-bold" : ""}
+              `}
+            >
+              <span className="absolute inset-0 flex items-center justify-center">
+                {format(date, "d")}
+              </span>
+              {isBlocked && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4 text-red-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
 
-export default Calendario; 
+export default Calendario;
